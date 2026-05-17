@@ -1,0 +1,22 @@
+# Output files
+output/
+*.mp4
+*.wav
+
+# Reference audio (too large, user-specific)
+audiotest*.mp3
+
+# Environment & secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+
+# Claude Code settings
+.claude/
+
+# Temp
+_tts_tmp/

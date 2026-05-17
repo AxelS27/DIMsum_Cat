@@ -1,0 +1,53 @@
+{
+  "animation": "normal_talk",
+  "duration": 14,
+  "output": "korean_demo",
+  "bg": "#f5f2ee",
+  "beats": [
+    {
+      "time": 0.0,
+      "text": "그 사람이",
+      "sub": "That person...",
+      "animation": "normal_talk",
+      "pos": "center",
+      "scale": 1.1,
+      "text_size": "big"
+    },
+    {
+      "time": 3.0,
+      "text": "카톡 읽씹했어",
+      "sub": "left me on read",
+      "animation": "holding_phone",
+      "pos": "right",
+      "scale": 1.2,
+      "text_size": "normal"
+    },
+    {
+      "time": 6.5,
+      "text": "나:",
+      "sub": "Me:",
+      "animation": "waiting_reply",
+      "pos": "left",
+      "scale": 1.0,
+      "text_size": "huge"
+    },
+    {
+      "time": 9.0,
+      "text": "괜찮아~",
+      "sub": "It's fine~",
+      "animation": "shy_blush",
+      "pos": "center",
+      "scale": 1.25,
+      "text_size": "big"
+    },
+    {
+      "time": 11.5,
+      "text": "안괜찮아",
+      "sub": "It's NOT fine",
+      "animation": "excited_talk",
+      "pos": "center-low",
+      "scale": 1.1,
+      "text_size": "huge"
+    }
+  ]
+}

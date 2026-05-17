@@ -1,0 +1,44 @@
+{
+  "animation": "normal_talk",
+  "duration": 14,
+  "output": "sample_flirt",
+  "bg": "#f8f4f0",
+  "beats": [
+    {
+      "time": 0.0,
+      "text": "他终于回我了",
+      "sub": "tā zhōngyú huí wǒ le · He finally replied",
+      "animation": "waiting_reply",
+      "pos": "center",
+      "scale": 1.0,
+      "text_size": "normal"
+    },
+    {
+      "time": 3.5,
+      "text": "\"你好可爱\"",
+      "sub": "nǐ hǎo kě ài · \"You're so cute\"",
+      "animation": "got_a_text",
+      "pos": "right-low",
+      "scale": 1.3,
+      "text_size": "big"
+    },
+    {
+      "time": 7.0,
+      "text": "我：",
+      "sub": "wǒ · Me:",
+      "animation": "shy_blush",
+      "pos": "left",
+      "scale": 0.9,
+      "text_size": "huge"
+    },
+    {
+      "time": 10.5,
+      "text": "❤️",
+      "sub": "",
+      "animation": "finger_heart",
+      "pos": "center",
+      "scale": 1.5,
+      "text_size": "huge"
+    }
+  ]
+}
