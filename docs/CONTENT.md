@@ -108,6 +108,41 @@ Teach one Korean word, phrase, or expression per video. DIMsum Cat explains it i
 
 ---
 
+## 5. K-Drama Recreate (드라마 재현)
+
+DIMsum Cat recreates iconic or viral scenes from Korean dramas. Fans instantly recognize the moment and share it — huge potential for organic reach.
+
+**Vibe:** dramatic, nostalgic, "omg this scene", fan service
+
+**Format:**
+- 15–25 seconds
+- 5–8 beats
+- Opens with drama title + episode context as subtitle
+- DIMsum Cat acts out the scene beat by beat
+- Korean dialogue (original or paraphrased) as main text
+- English subtitle for non-Korean audience
+- Background music: OST from the drama or emotional ballad
+
+**Example ideas:**
+- `kdrama_goblin_confession` — Goblin "도깨비" confession scene
+- `kdrama_crash_landing` — Crash Landing on You "사랑해요" moment
+- `kdrama_boys_over_flowers` — Jun-pyo chasing Jan-di
+- `kdrama_my_love_from_star` — "별에서 온 그대" ending
+- `kdrama_reply_1988` — Deok-sun choosing Choi Taek
+- `kdrama_strong_woman` — Bong-soon and Min-hyuk cute moment
+- `kdrama_queen_tears` — Hae-in's tearful scene (2024 viral)
+- `kdrama_my_demon` — Do-hee & Gu-won contract scene
+
+**Animations to use:** shy_blush, heart_eyes, whisper_secret, blow_kiss, crying, hugging_pillow, determined, shocked, need_a_hug, pleading, wink
+
+**Tips:**
+- Use the actual drama OST as `bg_music` for instant recognition
+- Keep dialogue short — 1 line per beat max
+- End on the most iconic/emotional line of the scene
+- Add drama title as first beat subtitle for context
+
+---
+
 ## Content Calendar Idea
 
 | Week | Category | Story |
@@ -116,8 +151,10 @@ Teach one Korean word, phrase, or expression per video. DIMsum Cat explains it i
 | 2 | POV | pov_crush_texts |
 | 3 | K-pop | kpop_newjeans_hype |
 | 4 | Tutorial | korean_fighting |
-| 5 | Story | story_read |
-| 6 | POV | pov_exam_tomorrow |
+| 5 | K-Drama | kdrama_crash_landing |
+| 6 | Story | story_read |
+| 7 | K-Drama | kdrama_goblin_confession |
+| 8 | POV | pov_exam_tomorrow |
 
 ---
 
@@ -136,3 +173,4 @@ Add per category:
 - POV: `#pov #povstory #scenario`
 - K-pop: `#kpop #bts #newjeans #aespa #ive #stayc #kpopfyp`
 - Tutorial: `#learnkorean #korean101 #koreanwords #studykorean #hangul`
+- K-Drama: `#kdrama #koreandrama #dramarecap #kdramaclip #goblin #cloy #queentears #dramaOST`
