@@ -21,7 +21,6 @@ from src.models import (
     ROOT,
     CONTENT_ROOT,
     TEXT_SIZES,
-    TTS_VOICE_DEFAULT,
 )
 from src.utils import (
     find_ffmpeg,
@@ -109,8 +108,6 @@ def load_story_json(path: Path, args: argparse.Namespace) -> RenderConfig:
         watermark         = data.get("watermark", args.watermark),
         save_gif          = args.gif,
         tts               = data.get("tts", args.tts),
-        tts_provider      = data.get("tts_provider", args.tts_provider),
-        tts_voice         = data.get("tts_voice", args.tts_voice),
         gpt_sovits_ref    = _resolve_story_path(data.get("gpt_sovits_ref", args.gpt_sovits_ref), story_dir),
         gpt_sovits_server = data.get("gpt_sovits_server", args.gpt_sovits_server),
         gpt_sovits_speed  = float(data.get("gpt_sovits_speed", args.gpt_sovits_speed)),
@@ -142,8 +139,6 @@ def config_from_args(args: argparse.Namespace) -> RenderConfig:
         watermark         = args.watermark,
         save_gif          = args.gif,
         tts               = args.tts,
-        tts_provider      = args.tts_provider,
-        tts_voice         = args.tts_voice,
         gpt_sovits_ref    = args.gpt_sovits_ref,
         gpt_sovits_server = args.gpt_sovits_server,
         gpt_sovits_speed  = args.gpt_sovits_speed,
@@ -165,8 +160,6 @@ def config_demo(args: argparse.Namespace) -> RenderConfig:
         watermark         = args.watermark,
         save_gif          = args.gif,
         tts               = args.tts,
-        tts_provider      = args.tts_provider,
-        tts_voice         = args.tts_voice,
         gpt_sovits_ref    = args.gpt_sovits_ref,
         gpt_sovits_server = args.gpt_sovits_server,
         gpt_sovits_speed  = args.gpt_sovits_speed,
@@ -216,10 +209,6 @@ Demo (built-in 4-beat story):
     p.add_argument("--watermark", default="",               help="(unused — watermark.png is used instead)")
     p.add_argument("--gif",       action="store_true",        help="Also export a GIF preview.")
     p.add_argument("--tts",              action="store_true",                   help="Add TTS voiceover.")
-    p.add_argument("--tts-provider",     default="edge",       dest="tts_provider",
-                   choices=["edge", "gpt_sovits"],             help="TTS provider (default: edge).")
-    p.add_argument("--tts-voice",        default=TTS_VOICE_DEFAULT, dest="tts_voice",
-                                                               help="edge-tts voice name.")
     p.add_argument("--gpt-sovits-ref",    default="",           dest="gpt_sovits_ref",
                                                                help="Reference audio for GPT-SoVITS voice cloning (3-10s).")
     p.add_argument("--gpt-sovits-server", default="http://127.0.0.1:9880", dest="gpt_sovits_server",
@@ -268,8 +257,6 @@ def render(config: RenderConfig) -> dict:
         audio_path = out_base / f"{config.output_name}_audio.mp3"
         tts_ok = build_tts_audio(
             config.beats, config.duration,
-            provider=config.tts_provider,
-            voice=config.tts_voice,
             out_path=audio_path,
             gpt_sovits_ref=config.gpt_sovits_ref,
             gpt_sovits_server=config.gpt_sovits_server,
@@ -293,8 +280,6 @@ def render(config: RenderConfig) -> dict:
         if tts_ok:
             mix_ok = build_tts_audio(
                 config.beats, config.duration,
-                provider=config.tts_provider,
-                voice=config.tts_voice,
                 out_path=audio_path,
                 gpt_sovits_ref=config.gpt_sovits_ref,
                 gpt_sovits_server=config.gpt_sovits_server,

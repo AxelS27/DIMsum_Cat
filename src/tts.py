@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import shutil
 import subprocess
 from pathlib import Path
@@ -38,12 +37,6 @@ def _should_speak(text: str) -> bool:
     """Skip beats with no meaningful speech (punctuation-only, zzz, etc.)."""
     clean = text.strip()
     return bool(clean) and len(clean) >= 2 and not all(c in ".…zZ!? " for c in clean)
-
-
-async def _edge_clip(text: str, voice: str, path: Path) -> None:
-    import edge_tts  # type: ignore[import]
-    # Deliver at slightly slower pace — ffmpeg handles pitch separately
-    await edge_tts.Communicate(text, voice, rate="-12%").save(str(path))
 
 
 def _detect_emotion(text: str) -> tuple[float, float, float]:
@@ -101,8 +94,6 @@ def _gpt_sovits_clip(
 def build_tts_audio(
     beats: list,
     duration: float,
-    provider: str,
-    voice: str,
     out_path: Path,
     gpt_sovits_ref: str = "",
     gpt_sovits_server: str = "http://127.0.0.1:9880",
@@ -112,7 +103,7 @@ def build_tts_audio(
 ) -> bool | dict:
     """Generate a timed audio track from beat texts using ffmpeg filter_complex.
 
-    Supports "edge" (free, less expressive) and "gpt_sovits" (local voice cloning).
+    Uses GPT-SoVITS (local voice cloning) for TTS generation.
     Clips are mixed at the correct timestamps via ffmpeg adelay+amix — no ffprobe needed.
     """
     ffmpeg = find_ffmpeg()
@@ -133,55 +124,37 @@ def build_tts_audio(
 
     # ── Generate clips (skipped if pregenerated_dir is provided) ────────────
     if not pregenerated_dir:
-        if provider == "gpt_sovits":
-            ref, server, speed = gpt_sovits_ref, gpt_sovits_server, gpt_sovits_speed
-            if not ref:
-                print("  TTS skipped: gpt_sovits_ref not set")
-                shutil.rmtree(tmp_dir, ignore_errors=True)
-                return False
-            try:
-                for i, b in speak_beats:
-                    print(f"    GPT-SoVITS: {b.text}")
-                    _gpt_sovits_clip(b.text, ref, tmp_dir / f"beat_{i:02d}.wav",
-                                     server=server,
-                                     speed=b.tts_speed,
-                                     temperature=b.tts_temperature)
-            except Exception as e:
-                print(f"  TTS (GPT-SoVITS) failed: {e}")
-                shutil.rmtree(tmp_dir, ignore_errors=True)
-                return False
-            for i, _ in speak_beats:
-                wav = tmp_dir / f"beat_{i:02d}.wav"
-                if wav.exists():
-                    subprocess.run(
-                        [ffmpeg, "-y", "-i", str(wav),
-                         "-c:a", "libmp3lame", "-b:a", "128k",
-                         str(tmp_dir / f"beat_{i:02d}.mp3")],
-                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                    )
-                    wav.unlink(missing_ok=True)
+        ref, server, speed = gpt_sovits_ref, gpt_sovits_server, gpt_sovits_speed
+        if not ref:
+            print("  TTS skipped: gpt_sovits_ref not set")
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+            return False
+        try:
+            for i, b in speak_beats:
+                print(f"    GPT-SoVITS: {b.text}")
+                _gpt_sovits_clip(b.text, ref, tmp_dir / f"beat_{i:02d}.wav",
+                                 server=server,
+                                 speed=b.tts_speed,
+                                 temperature=b.tts_temperature)
+        except Exception as e:
+            print(f"  TTS (GPT-SoVITS) failed: {e}")
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+            return False
+        for i, _ in speak_beats:
+            wav = tmp_dir / f"beat_{i:02d}.wav"
+            if wav.exists():
+                subprocess.run(
+                    [ffmpeg, "-y", "-i", str(wav),
+                     "-c:a", "libmp3lame", "-b:a", "128k",
+                     str(tmp_dir / f"beat_{i:02d}.mp3")],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                )
+                wav.unlink(missing_ok=True)
 
-        else:  # edge-tts
-            try:
-                import edge_tts  # noqa: F401
-            except ImportError as e:
-                print(f"  TTS skipped: {e}")
-                shutil.rmtree(tmp_dir, ignore_errors=True)
-                return False
-
-            async def _gen_all() -> None:
-                tasks = [
-                    _edge_clip(b.text, voice, tmp_dir / f"beat_{i:02d}.mp3")
-                    for i, b in speak_beats
-                ]
-                await asyncio.gather(*tasks)
-
-            asyncio.run(_gen_all())
-
-    # ── Post-process GPT-SoVITS clips: remove breathiness ────────────────────
+    # ── Post-process clips: remove breathiness ───────────────────────────────
     # highpass=f=130  → cuts low-frequency breath/rumble
     # dynaudnorm      → evens out loud/quiet moments so voice sounds consistent
-    if provider == "gpt_sovits" and not pregenerated_dir:
+    if not pregenerated_dir:
         for i, _ in speak_beats:
             p = tmp_dir / f"beat_{i:02d}.mp3"
             if not p.exists():
@@ -215,19 +188,6 @@ def build_tts_audio(
             for i, _ in clip_list
         }
         return durations
-
-    # ── Pitch shift for edge-tts only ────────────────────────────────────────
-    for i, _ in clip_list if provider != "gpt_sovits" else []:
-        p = tmp_dir / f"beat_{i:02d}.mp3"
-        tmp_p = tmp_dir / f"beat_{i:02d}_p.mp3"
-        subprocess.run(
-            [ffmpeg, "-y", "-i", str(p),
-             "-af", "asetrate=44100*1.55,aresample=44100,atempo=0.645,highpass=f=160",
-             str(tmp_p)],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-        )
-        if tmp_p.exists():
-            tmp_p.replace(p)
 
     # ── Fade-out each clip ────────────────────────────────────────────────────
     for idx, (i, beat) in enumerate(clip_list):
