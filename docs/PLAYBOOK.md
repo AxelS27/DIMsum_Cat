@@ -10,7 +10,17 @@
 Tell the AI agent:
 > "Buat story baru untuk DIMsum Cat tentang [topic/idea]. Ikuti rules di docs/PLAYBOOK.md."
 
-The AI outputs a complete `story.json`. Save to `content/<name>/story.json` and render.
+### AI Generation Flow
+
+1. **Read** `content/_template/story.json` as the base
+2. **Copy** the template structure — do not start from scratch
+3. **Fill in** all fields based on the idea and rules below
+4. **Output** the completed `story.json`
+
+The user saves it to `content/<name>/story.json` and renders with:
+```bash
+.venv/Scripts/python video_generator.py --story content/<name>
+```
 
 ---
 
@@ -52,6 +62,26 @@ The AI outputs a complete `story.json`. Save to `content/<name>/story.json` and 
 
 ---
 
+## Background Color Rules
+
+Background color (`bg`) should always **match the mood of the video** — not locked to a category. Use this as a guide:
+
+| Mood | Color | Hex |
+|------|-------|-----|
+| Warm & romantic | Soft peach | `#f5f0ec` |
+| Dreamy / crush | Blush pink | `#fdf0f5` |
+| Calm & gentle | Baby blue | `#f0f5fd` |
+| Cozy / nostalgic | Warm cream | `#fef9f0` |
+| Hype / energetic | Soft lavender | `#f5f0ff` |
+| Tense / dramatic | Cool blue-grey | `#e8edf5` |
+| Sad / emotional | Muted lilac | `#ede8f5` |
+| Cheerful / playful | Mint green | `#f0fdf5` |
+| Bold / confident | Pale rose | `#fff0f5` |
+
+**Rule:** Pick the color that fits the *emotion of the story*, not the category. A POV video can be warm peach if it's romantic. A K-Drama recreate can be cool blue if it's a tense scene.
+
+---
+
 ## Story Structure Rules
 
 ### Timing
@@ -87,7 +117,7 @@ The AI outputs a complete `story.json`. Save to `content/<name>/story.json` and 
 Relatable love/crush mini-story.
 
 ```
-bg: #f5f0ec · #fdf0f5 · #f0f5fd
+bg: match mood (see Background Color Rules)
 tts: true
 bg_music: ../../assets/music/love_maybe.mp3
 description: caption + master # + story #
@@ -103,7 +133,7 @@ Key animations: normal_talk, want_attention, happy_wiggle, whisper_secret, embar
 Relatable scenario. First beat opens with "POV:" in Korean.
 
 ```
-bg: #ede8f5 · #f5ede8
+bg: match mood (see Background Color Rules)
 tts: true
 bg_music: lo-fi track
 first beat text: "POV:" + scenario
@@ -120,7 +150,7 @@ Key animations: shocked, startled_jump, nervous_sweat, panic, tiny_tantrum, laug
 DIMsum Cat **sings along** to the viral K-pop moment with TTS voice + reacts with animations.
 
 ```
-bg: #f5f0ff · #fff0f5
+bg: match mood (see Background Color Rules)
 tts: true
 bg_music: path to K-pop track (TTS voice sings over the music)
 gpt_sovits_speed: 1.0 (match song tempo)
@@ -141,7 +171,7 @@ Beat rules:
 One Korean word or phrase per video.
 
 ```
-bg: #f5f2ee · #fef9f0
+bg: match mood (see Background Color Rules)
 tts: true
 bg_music: gentle lo-fi
 description: caption + master # + tutorial #
@@ -157,7 +187,7 @@ Key animations: normal_talk, curious_peek, head_tilt, finger_heart, wink, listen
 Iconic scene from a Korean drama, acted out by DIMsum Cat.
 
 ```
-bg: match mood (warm #f5ede8 for romance, cool #e8edf5 for tense)
+bg: match mood (see Background Color Rules)
 tts: true
 bg_music: drama OST
 first beat sub: "[Drama Title] — [scene context]"
