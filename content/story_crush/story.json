@@ -1,9 +1,11 @@
 {
+  "title": "첫사랑 이야기",
+  "description": "오늘 학교에서 걔가 나한테 먼저 말 걸었어!! 심장이 두근두근.. 그래도 고백해야겠다 화이팅!",
   "animation": "normal_talk",
   "bg": "#f5f0ec",
   "tts": true,
   "tts_provider": "gpt_sovits",
-  "gpt_sovits_ref": "audiotest_ref.mp3",
+  "gpt_sovits_ref": "assets/dimsum_cat_korean_ref.mp3",
   "bg_music": "../../music/love_maybe.mp3",
   "beats": [
     {

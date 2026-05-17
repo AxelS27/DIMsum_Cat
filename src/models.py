@@ -84,7 +84,9 @@ class RenderConfig:
     height: int
     bg: str
     watermark: str
-    story_dir: Path | None = None   # folder containing story.json; output goes here
+    story_dir:          Path | None = None   # folder containing story.json; output goes here
+    title:              str  = ""            # video title (embedded in MP4 + IG caption)
+    description:        str  = ""           # IG description / caption
     save_gif:           bool = False
     tts:                bool = False
     tts_provider:       str  = "edge"                    # "edge" | "gpt_sovits"

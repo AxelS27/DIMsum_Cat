@@ -18,11 +18,22 @@ def save_png_sequence(frames: list[Image.Image], out_dir: Path) -> None:
         frame.save(out_dir / f"frame_{i:04d}.png")
 
 
-def save_mp4(frames_dir: Path, mp4_path: Path, fps: int) -> None:
+def save_mp4(
+    frames_dir: Path,
+    mp4_path: Path,
+    fps: int,
+    title: str = "",
+    description: str = "",
+) -> None:
     ffmpeg = find_ffmpeg()
     if not ffmpeg:
         raise RuntimeError("ffmpeg not found. Run: pip install imageio-ffmpeg")
     mp4_path.parent.mkdir(parents=True, exist_ok=True)
+    metadata = []
+    if title:
+        metadata += ["-metadata", f"title={title}"]
+    if description:
+        metadata += ["-metadata", f"comment={description}"]
     result = subprocess.run(
         [
             ffmpeg, "-y",
@@ -33,6 +44,7 @@ def save_mp4(frames_dir: Path, mp4_path: Path, fps: int) -> None:
             "-crf", "18",
             "-preset", "slow",
             "-pix_fmt", "yuv420p",
+            *metadata,
             str(mp4_path),
         ],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE,

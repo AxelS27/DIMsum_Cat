@@ -99,6 +99,8 @@ def load_story_json(path: Path, args: argparse.Namespace) -> RenderConfig:
         default_animation = data.get("animation", args.animation),
         output_name       = output_name,
         story_dir         = story_dir,
+        title             = data.get("title", ""),
+        description       = data.get("description", ""),
         duration          = float(data.get("duration", args.duration)),
         fps               = int(data.get("fps", args.fps)),
         width             = int(data.get("width", args.width)),
@@ -284,7 +286,7 @@ def render(config: RenderConfig) -> dict:
     # ── Phase 2: Render video frames with (retimed) config ───────────────────
     frames = render_video_frames(config)
     save_png_sequence(frames, frames_dir)
-    save_mp4(frames_dir, mp4_path, config.fps)
+    save_mp4(frames_dir, mp4_path, config.fps, title=config.title, description=config.description)
 
     # ── Phase 3: Mix TTS audio at retimed timestamps + mux ───────────────────
     if config.tts:
