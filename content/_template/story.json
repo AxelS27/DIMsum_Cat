@@ -1,6 +1,6 @@
 {
   "title": "Story Title",
-  "description": "Instagram caption / description for this video",
+  "description": "Description Here",
 
   "animation": "normal_talk",
   "bg": "#f5f0ec",
@@ -9,7 +9,6 @@
   "height": 1920,
 
   "tts": false,
-  "tts_provider": "gpt_sovits",
   "gpt_sovits_ref": "../../assets/audio_reference/dimsum_cat_korean.mp3",
   "gpt_sovits_speed": 0.88,
   "gpt_sovits_server": "http://127.0.0.1:9880",

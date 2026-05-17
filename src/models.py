@@ -13,8 +13,6 @@ ROOT = Path(__file__).resolve().parent.parent
 # Constants
 # ---------------------------------------------------------------------------
 
-TTS_VOICE_DEFAULT          = "ko-KR-SunHiNeural"   # edge-tts female Korean voice
-
 ASSETS_ROOT      = ROOT / "assets"
 SPRITES_ROOT     = ASSETS_ROOT / "sprites"
 ANIMATIONS_ROOT  = SPRITES_ROOT / "dimsum_cat" / "animations"
@@ -90,8 +88,6 @@ class RenderConfig:
     description:        str  = ""           # IG description / caption
     save_gif:           bool = False
     tts:                bool = False
-    tts_provider:       str  = "edge"                    # "edge" | "gpt_sovits"
-    tts_voice:          str  = TTS_VOICE_DEFAULT          # edge-tts voice name
     gpt_sovits_server:  str  = "http://127.0.0.1:9880"   # local GPT-SoVITS API server
     gpt_sovits_ref:     str  = ""                         # reference audio path for voice cloning
     gpt_sovits_speed:   float = 0.88

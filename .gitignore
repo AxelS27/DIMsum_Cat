@@ -2,6 +2,7 @@
 content/*/video.mp4
 content/*/video.gif
 content/*/frames/
+content/*/video.tmp.mp4
 *.wav
 
 # Reference audio (user-specific, not committed)
