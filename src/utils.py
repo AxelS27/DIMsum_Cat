@@ -13,7 +13,7 @@ from src.models import POSITIONS, ANIMATIONS_ROOT, ROOT, SPRITE_FRAME_MS, StoryB
 # Fonts
 # ---------------------------------------------------------------------------
 
-LOCAL_FONTS_DIR = ROOT / "fonts"
+LOCAL_FONTS_DIR = ROOT / "assets" / "fonts"
 
 
 def find_ffmpeg() -> str | None:

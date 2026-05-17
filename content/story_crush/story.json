@@ -5,7 +5,7 @@
   "bg": "#f5f0ec",
   "tts": true,
   "tts_provider": "gpt_sovits",
-  "gpt_sovits_ref": "assets/dimsum_cat_korean_ref.mp3",
+  "gpt_sovits_ref": "../../assets/audio_reference/dimsum_cat_korean.mp3",
   "bg_music": "../../assets/music/love_maybe.mp3",
   "beats": [
     {

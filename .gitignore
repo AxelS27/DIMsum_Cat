@@ -6,7 +6,7 @@ content/*/frames/
 
 # Reference audio (user-specific, not committed)
 audiotest*.mp3
-content/*/assets/*.mp3
+assets/audio_reference/
 
 # Environment & secrets
 .env
