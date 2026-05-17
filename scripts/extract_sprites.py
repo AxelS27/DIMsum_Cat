@@ -292,8 +292,8 @@ def extract_animation(
 def main() -> None:
     # ROOT is one level up from scripts/
     root       = Path(__file__).resolve().parent.parent
-    design_dir = root / "sprites" / "dimsum_cat" / "design"
-    anim_dir   = root / "sprites" / "dimsum_cat" / "animations"
+    design_dir = root / "assets" / "sprites" / "dimsum_cat" / "design"
+    anim_dir   = root / "assets" / "sprites" / "dimsum_cat" / "animations"
 
     for sheet_stem, pages in ANIMATIONS.items():
         sheet_path = design_dir / f"{sheet_stem}.png"

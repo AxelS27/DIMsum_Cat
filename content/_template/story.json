@@ -14,7 +14,7 @@
   "gpt_sovits_speed": 0.88,
   "gpt_sovits_server": "http://127.0.0.1:9880",
 
-  "bg_music": "../../music/love_maybe.mp3",
+  "bg_music": "../../assets/music/love_maybe.mp3",
 
   "beats": [
     {

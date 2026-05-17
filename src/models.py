@@ -15,7 +15,8 @@ ROOT = Path(__file__).resolve().parent.parent
 
 TTS_VOICE_DEFAULT          = "ko-KR-SunHiNeural"   # edge-tts female Korean voice
 
-SPRITES_ROOT     = ROOT / "sprites"
+ASSETS_ROOT      = ROOT / "assets"
+SPRITES_ROOT     = ASSETS_ROOT / "sprites"
 ANIMATIONS_ROOT  = SPRITES_ROOT / "dimsum_cat" / "animations"
 WATERMARK_PNG    = SPRITES_ROOT / "watermark.png"
 CONTENT_ROOT     = ROOT / "content"
