@@ -59,6 +59,13 @@ TEXT_SIZES: dict[str, tuple[int, int]] = {
 # ---------------------------------------------------------------------------
 
 @dataclass
+class RichTextSpan:
+    """One colored segment in a beat's optional visual text."""
+    text: str
+    color: str = "#2a2a2a"
+
+
+@dataclass
 class StoryBeat:
     """One moment in the video story."""
     time: float            # seconds from start
@@ -70,6 +77,7 @@ class StoryBeat:
     text_size: str = "normal"  # small | normal | big | huge
     tts_speed: float | None = None        # override auto-detected speed
     tts_temperature: float | None = None  # override auto-detected temperature
+    rich_text: list[RichTextSpan] = field(default_factory=list)
 
 
 @dataclass

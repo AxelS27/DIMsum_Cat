@@ -17,6 +17,7 @@ load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 from src.models import (
     RenderConfig,
+    RichTextSpan,
     StoryBeat,
     ROOT,
     CONTENT_ROOT,
@@ -69,6 +70,20 @@ def _resolve_story_path(raw: str, story_dir: Path) -> str:
     return str(rel_to_root)
 
 
+def _load_rich_text(raw: object) -> list[RichTextSpan]:
+    if not isinstance(raw, list):
+        return []
+    spans: list[RichTextSpan] = []
+    for item in raw:
+        if isinstance(item, str):
+            spans.append(RichTextSpan(text=item))
+        elif isinstance(item, dict):
+            text = str(item.get("text", ""))
+            if text:
+                spans.append(RichTextSpan(text=text, color=str(item.get("color", "#2a2a2a"))))
+    return spans
+
+
 def load_story_json(path: Path, args: argparse.Namespace) -> RenderConfig:
     # Accept directory path → look for story.json inside
     if path.is_dir():
@@ -89,6 +104,7 @@ def load_story_json(path: Path, args: argparse.Namespace) -> RenderConfig:
             text_size       = b.get("text_size", "normal"),
             tts_speed       = float(b["tts_speed"])       if "tts_speed"       in b else None,
             tts_temperature = float(b["tts_temperature"]) if "tts_temperature" in b else None,
+            rich_text       = _load_rich_text(b.get("rich_text")),
         )
         for b in raw_beats
     ]

@@ -6,6 +6,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 from src.models import (
     RenderConfig,
+    RichTextSpan,
     StoryBeat,
     WATERMARK_PNG,
     TEXT_SIZES,
@@ -43,6 +44,47 @@ def make_background(size: tuple[int, int], bg_hex: str) -> Image.Image:
     return canvas
 
 
+def _parse_hex_color(value: str, fallback: tuple[int, int, int]) -> tuple[int, int, int]:
+    raw = value.strip().lstrip("#")
+    if len(raw) != 6:
+        return fallback
+    try:
+        return tuple(int(raw[i:i + 2], 16) for i in (0, 2, 4))
+    except ValueError:
+        return fallback
+
+
+def _measure_rich_line(
+    draw: ImageDraw.ImageDraw,
+    spans: list[RichTextSpan],
+    font,
+) -> tuple[int, int]:
+    width = 0
+    height = 0
+    for span in spans:
+        w, h = measure(draw, span.text, font)
+        width += w
+        height = max(height, h)
+    return width, height
+
+
+def _draw_rich_line(
+    draw: ImageDraw.ImageDraw,
+    spans: list[RichTextSpan],
+    font,
+    x: int,
+    y: int,
+    alpha: int,
+) -> None:
+    cursor = x
+    shadow_a = int(70 * alpha / 255)
+    for span in spans:
+        color = _parse_hex_color(span.color, (42, 42, 42))
+        draw.text((cursor + 3, y + 3), span.text, font=font, fill=(0, 0, 0, shadow_a))
+        draw.text((cursor, y), span.text, font=font, fill=(*color, alpha))
+        cursor += measure(draw, span.text, font)[0]
+
+
 def draw_text_overlay(
     canvas: Image.Image,
     text: str,
@@ -50,9 +92,11 @@ def draw_text_overlay(
     size_key: str,
     alpha: int,
     w_scale: float,
+    rich_text: list[RichTextSpan] | None = None,
 ) -> None:
     """Render text directly on canvas — no card/box, drop shadow only."""
-    if not text and not sub:
+    rich_text = rich_text or []
+    if not text and not sub and not rich_text:
         return
 
     main_px, sub_px = TEXT_SIZES.get(size_key, TEXT_SIZES["normal"])
@@ -65,13 +109,22 @@ def draw_text_overlay(
     gap_blk = int(20 * w_scale)   # between main and sub block
 
     proxy = ImageDraw.Draw(Image.new("RGBA", (1, 1)))
-    main_lines = wrap_text(proxy, text, main_font, max_w) if text else []
+    main_lines = [] if rich_text else (wrap_text(proxy, text, main_font, max_w) if text else [])
     sub_lines  = wrap_text(proxy, sub,  sub_font,  max_w) if sub  else []
+
+    if rich_text:
+        rich_w, _ = _measure_rich_line(proxy, rich_text, main_font)
+        if rich_w > max_w:
+            scale = max(0.68, max_w / rich_w)
+            main_font = find_font(max(1, int(main_px * w_scale * scale)), bold=True)
 
     # Measure total block height so we can vertically center in the text zone
     total_h = 0
-    for line in main_lines:
-        total_h += measure(proxy, line, main_font)[1] + gap_ln
+    if rich_text:
+        total_h += _measure_rich_line(proxy, rich_text, main_font)[1] + gap_ln
+    else:
+        for line in main_lines:
+            total_h += measure(proxy, line, main_font)[1] + gap_ln
     if sub_lines:
         total_h += gap_blk
         for line in sub_lines:
@@ -99,12 +152,18 @@ def draw_text_overlay(
         nonlocal_y[0] += render_line_at(draw, line, font, color, nonlocal_y[0], canvas.width, gap_ln, alpha)
 
     # Instead of the closure trick, just draw inline:
-    for line in main_lines:
-        w, h = measure(draw, line, main_font)
+    if rich_text:
+        w, h = _measure_rich_line(draw, rich_text, main_font)
         x = (canvas.width - w) // 2
-        draw.text((x + 2, y + 2), line, font=main_font, fill=(0, 0, 0, int(55 * alpha / 255)))
-        draw.text((x, y), line, font=main_font, fill=(42, 42, 42, alpha))
+        _draw_rich_line(draw, rich_text, main_font, x, y, alpha)
         y += h + gap_ln
+    else:
+        for line in main_lines:
+            w, h = measure(draw, line, main_font)
+            x = (canvas.width - w) // 2
+            draw.text((x + 2, y + 2), line, font=main_font, fill=(0, 0, 0, int(55 * alpha / 255)))
+            draw.text((x, y), line, font=main_font, fill=(42, 42, 42, alpha))
+            y += h + gap_ln
 
     if sub_lines:
         y += gap_blk
@@ -234,7 +293,7 @@ def render_video_frames(config: RenderConfig) -> list[Image.Image]:
 
         # Text — fades in on beat entry
         text_alpha = min(255, int(255 * age / FADE_IN)) if age < FADE_IN else 255
-        draw_text_overlay(canvas, beat.text, beat.sub, beat.text_size, text_alpha, w_scale)
+        draw_text_overlay(canvas, beat.text, beat.sub, beat.text_size, text_alpha, w_scale, beat.rich_text)
 
         # Resize so the cat *body* (excluding padding) renders at 62% of
         # canvas width × char_scale.  The pre-upscaled sprite is padded_size×4,
