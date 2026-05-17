@@ -1,10 +1,12 @@
-# Output files
-output/
-*.mp4
+# Output files inside story folders
+content/*/video.mp4
+content/*/video.gif
+content/*/frames/
 *.wav
 
-# Reference audio (too large, user-specific)
+# Reference audio (user-specific, not committed)
 audiotest*.mp3
+content/*/audiotest*.mp3
 
 # Environment & secrets
 .env

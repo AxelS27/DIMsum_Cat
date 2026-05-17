@@ -1,0 +1,29 @@
+{
+  "animation": "normal_talk",
+  "bg": "#f5f0ec",
+  "fps": 24,
+  "width": 1080,
+  "height": 1920,
+
+  "tts": false,
+  "tts_provider": "gpt_sovits",
+  "gpt_sovits_ref": "audiotest_ref.mp3",
+  "gpt_sovits_speed": 0.88,
+  "gpt_sovits_server": "http://127.0.0.1:9880",
+
+  "bg_music": "../../music/love_maybe.mp3",
+
+  "beats": [
+    {
+      "time": 0.0,
+      "text": "텍스트",
+      "sub": "subtitle / translation",
+      "animation": "normal_talk",
+      "pos": "center",
+      "scale": 1.0,
+      "text_size": "big",
+      "tts_speed": null,
+      "tts_temperature": null
+    }
+  ]
+}

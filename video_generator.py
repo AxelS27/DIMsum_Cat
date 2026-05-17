@@ -27,7 +27,7 @@ ROOT = Path(__file__).resolve().parent
 SPRITES_ROOT     = ROOT / "sprites"
 ANIMATIONS_ROOT  = SPRITES_ROOT / "dimsum_cat" / "animations"
 WATERMARK_PNG    = SPRITES_ROOT / "watermark.png"
-OUTPUT_ROOT      = ROOT / "output"
+CONTENT_ROOT     = ROOT / "content"
 FRAME_NAMES      = ("frame_a.png", "frame_b.png", "frame_c.png", "frame_d.png")
 
 # Base sprite frame hold — actual timing varies per frame for hand-animated feel
@@ -94,6 +94,7 @@ class RenderConfig:
     height: int
     bg: str
     watermark: str
+    story_dir: Path | None = None   # folder containing story.json; output goes here
     save_gif:           bool = False
     tts:                bool = False
     tts_provider:       str  = "edge"                    # "edge" | "gpt_sovits"
@@ -1009,13 +1010,15 @@ def mux_audio_into_mp4(
 
 
 def render(config: RenderConfig) -> dict:
-    out_base   = OUTPUT_ROOT / config.output_name
+    # Output goes into the story's own folder; fallback to content/<name>
+    out_base = config.story_dir if config.story_dir else CONTENT_ROOT / config.output_name
+    out_base.mkdir(parents=True, exist_ok=True)
     frames_dir = out_base / "frames"
     # Clear stale frames from previous renders so old frames don't extend duration
     if frames_dir.exists():
         shutil.rmtree(frames_dir)
-    mp4_path   = out_base / f"{config.output_name}.mp4"
-    gif_path   = out_base / f"{config.output_name}.gif"
+    mp4_path = out_base / "video.mp4"
+    gif_path = out_base / "video.gif"
 
     # Resolve background music path early
     bg_music_path: Path | None = None
@@ -1125,7 +1128,28 @@ DEFAULT_STORY = [
 ]
 
 
+def _resolve_story_path(raw: str, story_dir: Path) -> str:
+    """Resolve a path that may be relative to the story folder or project root."""
+    if not raw:
+        return raw
+    p = Path(raw)
+    if p.is_absolute():
+        return str(p)
+    # Try relative to story folder first, then project root
+    rel_to_story = (story_dir / p).resolve()
+    if rel_to_story.exists():
+        return str(rel_to_story)
+    rel_to_root = (ROOT / p).resolve()
+    return str(rel_to_root)
+
+
 def load_story_json(path: Path, args: argparse.Namespace) -> RenderConfig:
+    # Accept directory path → look for story.json inside
+    if path.is_dir():
+        path = path / "story.json"
+    path = path.resolve()
+    story_dir = path.parent
+
     data = json.loads(path.read_text(encoding="utf-8"))
     raw_beats = data.get("beats", [])
     beats = [
@@ -1142,11 +1166,12 @@ def load_story_json(path: Path, args: argparse.Namespace) -> RenderConfig:
         )
         for b in raw_beats
     ]
-    output_name = data.get("output", args.output) or slugify(path.stem)
+    output_name = data.get("output", args.output) or story_dir.name
     return RenderConfig(
         beats             = beats,
         default_animation = data.get("animation", args.animation),
         output_name       = output_name,
+        story_dir         = story_dir,
         duration          = float(data.get("duration", args.duration)),
         fps               = int(data.get("fps", args.fps)),
         width             = int(data.get("width", args.width)),
@@ -1157,10 +1182,10 @@ def load_story_json(path: Path, args: argparse.Namespace) -> RenderConfig:
         tts               = data.get("tts", args.tts),
         tts_provider      = data.get("tts_provider", args.tts_provider),
         tts_voice         = data.get("tts_voice", args.tts_voice),
-        gpt_sovits_ref    = data.get("gpt_sovits_ref", args.gpt_sovits_ref),
+        gpt_sovits_ref    = _resolve_story_path(data.get("gpt_sovits_ref", args.gpt_sovits_ref), story_dir),
         gpt_sovits_server = data.get("gpt_sovits_server", args.gpt_sovits_server),
         gpt_sovits_speed  = float(data.get("gpt_sovits_speed", args.gpt_sovits_speed)),
-        bg_music          = data.get("bg_music", args.bg_music),
+        bg_music          = _resolve_story_path(data.get("bg_music", args.bg_music), story_dir),
     )
 
 
