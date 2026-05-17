@@ -45,37 +45,49 @@ D:/GPT-SoVITS/runtime/python.exe D:/GPT-SoVITS/api_v2.py -a 127.0.0.1 -p 9880
 
 ```
 assets/
-  audio_reference/   ← voice reference audio (gitignored)
-  fonts/             ← Jua-Regular.ttf
-  music/             ← background music tracks
+  audio_reference/        ← voice reference audio (gitignored)
+    dimsum_cat_korean.mp3
+  fonts/
+    Jua-Regular.ttf
+  music/
+    love_maybe.mp3
   sprites/
+    watermark.png
     dimsum_cat/
-      animations/    ← 60 animation folders (frame_a–d.png each)
-      design/        ← original design sheets
-      preview/       ← GIF previews
+      animations/         ← 60 animation folders (frame_a–d.png each)
+      design/             ← original design sheets (design_1–5.png)
 
 content/
-  _template/         ← copy this to start a new story
+  _template/              ← copy this to start a new story
     story.json
-  story_crush/       ← example story
+  story_crush/            ← example story
     story.json
-    video.mp4        ← rendered output (gitignored)
-
-src/
-  models.py          ← StoryBeat, RenderConfig, constants
-  utils.py           ← helpers, font, ffmpeg
-  sprite.py          ← organic motion, load_frames
-  renderer.py        ← render_video_frames, text overlay
-  tts.py             ← GPT-SoVITS TTS, emotion detection
-  output.py          ← save_mp4, mux_audio
-  story.py           ← load_story_json, CLI, main()
-
-scripts/
-  extract_sprites.py ← extract frames from design sheets
+    video.mp4             ← rendered output (gitignored)
+    frames/               ← temp PNG frames during render (gitignored)
 
 docs/
-  CONTEXT.md         ← this file
-  CONTENT.md         ← content strategy & ideas
+  CONTEXT.md              ← this file
+  CONTENT.md              ← content strategy & ideas
+  reference_videos/       ← style reference videos
+    video_1.mp4
+    video_2.mp4
+
+scripts/
+  extract_sprites.py      ← extract frames from design sheets
+
+src/
+  __init__.py
+  models.py               ← StoryBeat, RenderConfig, constants
+  utils.py                ← helpers, font, ffmpeg
+  sprite.py               ← organic motion, load_frames
+  renderer.py             ← render_video_frames, text overlay
+  tts.py                  ← GPT-SoVITS TTS, emotion detection
+  output.py               ← save_mp4, mux_audio
+  story.py                ← load_story_json, CLI, main()
+
+video_generator.py        ← entry point (3 lines)
+.env                      ← API keys (gitignored)
+.venv/                    ← Python virtual environment (gitignored)
 ```
 
 ---
