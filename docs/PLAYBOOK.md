@@ -12,10 +12,14 @@ Tell the AI agent:
 
 ### AI Generation Flow
 
-1. **Read** `content/_template/story.json` as the base
-2. **Copy** the template structure — do not start from scratch
-3. **Fill in** all fields based on the idea and rules below
-4. **Output** the completed `story.json`
+1. **Identify the character** being used (default: `dimsum_cat`; others may be added later)
+2. **Check available animations** by listing the character's animations folder:
+   `assets/sprites/<character_name>/animations/`
+   → Do NOT rely on any hardcoded animation list. Always read the actual folder. New animations may have been added.
+3. **Read** `content/_template/story.json` as the base
+4. **Copy** the template structure — do not start from scratch
+5. **Fill in** all fields based on the idea and rules below, picking animations from what actually exists in step 2
+6. **Output** the completed `story.json`
 
 The user saves it to `content/<name>/story.json` and renders with:
 ```bash
@@ -24,15 +28,34 @@ The user saves it to `content/<name>/story.json` and renders with:
 
 ---
 
-## Character Rules
+## Characters
 
-- DIMsum Cat is a **cute kawaii cat girl**, pronoun **she/her**
-- Expressive, relatable, slightly dramatic, very Korean
-- Voice: young, bubbly, emotionally reactive
+Characters live in `assets/sprites/<character_name>/`. More characters will be added over time.
+
+### Active Characters
+
+| Folder | Name | Personality | Voice Ref |
+|--------|------|-------------|-----------|
+| `dimsum_cat` | DIMsum Cat | cute kawaii cat girl, she/her, expressive, slightly dramatic | `assets/audio_reference/dimsum_cat_korean.mp3` |
+
+> When a new character is added, update this table. Each character has its own animations folder and voice reference audio.
+
+### Universal Character Rules
 - Main `text` is always **Korean hangul**
 - `sub` is always **English**
 - **Never use emoji in `text`** (Jua font doesn't support it)
 - Emoji OK in `sub` and `description`
+
+### Animations — ALWAYS Check the Folder
+
+**Do not use any hardcoded animation list.** Always list the actual folder:
+```
+assets/sprites/<character_name>/animations/
+```
+New animations may be added at any time. Pick the ones that best fit the emotion of each beat from what actually exists. Use `--list-animations` CLI flag to see all available animations:
+```bash
+.venv/Scripts/python video_generator.py --list-animations
+```
 
 ---
 
@@ -125,7 +148,7 @@ description: caption + master # + story #
 
 Beat flow: Setup → Excited moment → Feeling → Twist → Disappointment → Silence → Resolve → Punchline
 
-Key animations: normal_talk, want_attention, happy_wiggle, whisper_secret, embarrassed, side_eye, determined, cheering
+Suggested animation mood: expressive talking, excitement, embarrassment, side-eye, determination, cheering — check folder for actual names
 
 ---
 
@@ -142,7 +165,7 @@ description: caption + master # + pov #
 
 Beat flow: POV setup → Reaction → Escalation → Peak → Punchline
 
-Key animations: shocked, startled_jump, nervous_sweat, panic, tiny_tantrum, laughing_hard, side_eye, mischief_grin
+Suggested animation mood: shock, panic, escalating reaction, punchline — check folder for actual names
 
 ---
 
@@ -179,7 +202,7 @@ description: caption + master # + tutorial #
 
 Beat flow: Hook ("이 단어 알아?") → Show word → Pronunciation → Meaning reveal → Example sentence → Use in context → Closing
 
-Key animations: normal_talk, curious_peek, head_tilt, finger_heart, wink, listening_closely, blow_kiss
+Suggested animation mood: curious, explaining, listening, cute reveal, closing — check folder for actual names
 
 ---
 
@@ -200,7 +223,7 @@ Beat rules:
 - End on emotional peak
 - Use OST as bg_music for instant fan recognition
 
-Key animations: shy_blush, heart_eyes, whisper_secret, blow_kiss, crying, hugging_pillow, determined, shocked, need_a_hug
+Suggested animation mood: romantic, shy, emotional peak, dramatic — check folder for actual names
 
 ---
 
