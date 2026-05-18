@@ -1,11 +1,40 @@
 from __future__ import annotations
 
 import math
+import re
 import shutil
 import subprocess
 from pathlib import Path
 
 from PIL import ImageDraw, ImageFont
+
+# Strips emoji and other Unicode symbols that Jua / system CJK fonts can't render.
+# Covers the main emoji blocks; keeps all Latin, Korean, punctuation.
+_EMOJI_RE = re.compile(
+    "[\U0001F300-\U0001FAFF"   # misc symbols, transport, supplemental, chess
+    "\U00002600-\U000027BF"    # misc symbols, dingbats
+    "\U0000FE00-\U0000FE0F"    # variation selectors
+    "\U00002702-\U000027B0"    # dingbats (subset)
+    "\U000024C2-\U0001F251"    # enclosed chars
+    "]+",
+    flags=re.UNICODE,
+)
+
+# Characters outside Jua's coverage that render as tofu boxes.
+# Map to visually equivalent safe ASCII alternatives.
+_UNSUPPORTED = str.maketrans({
+    "—": "-",   # em dash  —
+    "–": "-",   # en dash  –
+    "‘": "'",   # left single quote
+    "’": "'",   # right single quote
+    "“": '"',   # left double quote
+    "”": '"',   # right double quote
+    "…": "...", # ellipsis …
+})
+
+
+def strip_emoji(text: str) -> str:
+    return _EMOJI_RE.sub("", text).translate(_UNSUPPORTED).strip()
 
 from src.models import POSITIONS, ANIMATIONS_ROOT, ROOT, SPRITE_FRAME_MS, StoryBeat
 
@@ -135,7 +164,7 @@ def _recalculate_beat_times(
     beats: list[StoryBeat],
     clip_durations: dict[int, float],
     intro_gap: float = 0.6,
-    between_gap: float = 0.30,
+    between_gap: float = 0.45,
     silent_beat_dur: float = 1.5,
 ) -> tuple[list[StoryBeat], float]:
     """Retime beats so each scene ends shortly after its speech finishes.
@@ -150,4 +179,4 @@ def _recalculate_beat_times(
         new_beats.append(dataclasses.replace(beat, time=t))
         dur = clip_durations.get(i, 0.0)
         t += (dur + between_gap) if dur > 0 else silent_beat_dur
-    return new_beats, t + 0.8   # trailing buffer
+    return new_beats, t + 1.8   # trailing buffer — enough for last clip to finish

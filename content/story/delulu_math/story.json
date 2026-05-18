@@ -1,0 +1,100 @@
+{
+  "title": "Delulu Math",
+  "description": "시선 + 미소 = 사랑... 인줄 알았는데 오답이야!! 🐱\n\n#dimsumcat #kawaii #fyp #foryou #viral #kpop #kdrama #cdrama #anime #cute #blowthisup #xyzbca #trending #coquette #softlife\n#crush #firstlove #schoolcrush #lovestory #romance #relatable #storytime #pov #povstory #scenario",
+
+  "animation": "normal_talk",
+  "bg": "#fdf0f5",
+  "fps": 24,
+  "width": 1080,
+  "height": 1920,
+
+  "tts": true,
+  "gpt_sovits_ref": "../../../assets/audio_reference/dimsum_cat_korean.mp3",
+  "gpt_sovits_speed": 0.95,
+  "gpt_sovits_server": "http://127.0.0.1:9880",
+
+  "bg_music": "../../../assets/music/love_maybe.mp3",
+  "bg_music_start": "00:00",
+  "bg_volume": 0.12,
+  "tts_volume": 1.6,
+  "tts_pitch": 1.0,
+
+  "beats": [
+    {
+      "time": 0.0,
+      "text": "야, 저 오빠 나 쳐다봤어!!",
+      "sub": "wait, that guy just looked at me!!",
+      "animation": "excited_talk",
+      "pos": "center",
+      "scale": 1.1,
+      "text_size": "big",
+      "rich_text": [
+        {"text": "야, 저 오빠 ", "color": "#2a2a2a"},
+        {"text": "나 쳐다봤어!!", "color": "#e8537a"}
+      ]
+    },
+    {
+      "time": 3.5,
+      "text": "나 맞지? 나한테 본 거 맞지?",
+      "sub": "it was me right? he was looking at me?",
+      "animation": "shy_blush",
+      "pos": "right",
+      "scale": 1.05,
+      "text_size": "big"
+    },
+    {
+      "time": 7.0,
+      "text": "좋아 이제 공식 시작이야!",
+      "sub": "okay, starting the romance formula!",
+      "animation": "mischief_grin",
+      "pos": "center",
+      "scale": 1.1,
+      "text_size": "big"
+    },
+    {
+      "time": 10.5,
+      "text": "시선 더하기 미소 등호 사랑",
+      "sub": "looks + smile = love",
+      "animation": "heart_eyes",
+      "pos": "center",
+      "scale": 1.3,
+      "text_size": "huge",
+      "tts_temperature": 1.45,
+      "rich_text": [
+        {"text": "시선", "color": "#e8537a"},
+        {"text": " + ", "color": "#2a2a2a"},
+        {"text": "미소", "color": "#ffc857"},
+        {"text": " = ", "color": "#2a2a2a"},
+        {"text": "사랑", "color": "#e8537a"}
+      ]
+    },
+    {
+      "time": 14.0,
+      "text": "잠깐만, 뭔가 이상한데?",
+      "sub": "wait... something feels off",
+      "animation": "confused_thinking",
+      "pos": "left",
+      "scale": 0.95,
+      "text_size": "normal"
+    },
+    {
+      "time": 17.0,
+      "text": "어... 내 뒤에 있는 사람 본 거잖아",
+      "sub": "he was looking at someone behind me",
+      "animation": "side_eye",
+      "pos": "center-low",
+      "scale": 1.1,
+      "text_size": "big"
+    },
+    {
+      "time": 20.5,
+      "text": "오답이야!! 내 연애 공식 틀렸어!!",
+      "sub": "WRONG ANSWER!! my romance math failed!!",
+      "animation": "tiny_tantrum",
+      "pos": "center",
+      "scale": 1.3,
+      "text_size": "huge",
+      "tts_temperature": 1.50
+    }
+  ]
+}

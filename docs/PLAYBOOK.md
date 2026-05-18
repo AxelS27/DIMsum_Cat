@@ -21,10 +21,12 @@ Tell the AI agent:
 5. **Fill in** all fields based on the idea and rules below, picking animations from what actually exists in step 2
 6. **Output** the completed `story.json`
 
-The user saves it to `content/<name>/story.json` and renders with:
+The user saves it to `content/<category>/<name>/story.json` and renders with:
 ```bash
-.venv/Scripts/python video_generator.py --story content/<name>
+.venv/Scripts/python video_generator.py --story content/<category>/<name>
 ```
+
+Asset paths in story.json must use `../../../assets/` (three levels up from the story folder).
 
 ---
 
@@ -45,6 +47,10 @@ Characters live in `assets/sprites/<character_name>/`. More characters will be a
 - `sub` is always **English**
 - **Never use emoji in `text`** (Jua font doesn't support it)
 - Emoji OK in `sub` and `description`
+- **Never mix Latin alphabet into `text`** — GPT-SoVITS can't pronounce it naturally in Korean TTS
+  - Brand names and foreign words must be written phonetically in hangul
+  - e.g. `"DIMsum Cat"` → `"딤섬 캣"`, `"POV"` → `"피오브이"`, `"K-pop"` → `"케이팝"`
+  - Use `rich_text` to display the Latin brand name visually while TTS gets the hangul version
 
 ### Animations — ALWAYS Check the Folder
 
@@ -125,6 +131,20 @@ Background color (`bg`) should always **match the mood of the video** — not lo
 - Arc: setup → escalation → reaction → resolution/punchline
 - End on a strong beat
 - Silent dramatic pause: `"text": "...."` with `side_eye` or `sulking`
+
+### TTS Minimum Length Rule
+- Each `text` beat must have **at least 7 Korean syllables** (characters in 가–힣)
+- Beats shorter than 7 syllables cause GPT-SoVITS to generate wobbly/unstable pitch ("melengkung")
+- If a beat feels too short, **expand or rephrase** — add context, reaction, or a trailing question
+- Example: ~~`"안녕! 나야 나!"`~~ → `"야야, 나야 나! 기다렸지?"`
+
+### Voice & Tone — Talk Like a Bestie
+DIMsum Cat speaks to viewers like a close best friend — casual, warm, direct:
+- Use informal speech endings: **야, 어, 지, 거든, 잖아, 했잖아** — never formal 요/습니다
+- Address the viewer directly: **너, 야, 우리** — never 여러분 or 시청자
+- Reactions feel genuine: **어머, 헐, 진짜**, not scripted
+- Questions invite the viewer in: **기다렸지? 알지? 해봤어?**
+- Energy matches a bestie telling a story, not a presenter giving a speech
 
 ### Scale & Position
 - Big moment: `scale 1.2–1.4`, `text_size: "huge"`

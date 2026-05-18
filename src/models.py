@@ -29,7 +29,7 @@ SPRITE_PAD = 22
 
 # Pre-upscale factor applied once at load time.
 # Means per-frame resize is a downscale → sharp, not blurry.
-SPRITE_UPSCALE = 4
+SPRITE_UPSCALE = 1
 
 # Named character anchor positions as (cx, cy) fractions of canvas.
 # cy=0.60 puts the character center at 60% from top — visually centred on
@@ -59,6 +59,13 @@ TEXT_SIZES: dict[str, tuple[int, int]] = {
 # ---------------------------------------------------------------------------
 
 @dataclass
+class RichTextSpan:
+    """One colored segment in a beat's optional visual text."""
+    text: str
+    color: str = "#2a2a2a"
+
+
+@dataclass
 class StoryBeat:
     """One moment in the video story."""
     time: float            # seconds from start
@@ -70,6 +77,8 @@ class StoryBeat:
     text_size: str = "normal"  # small | normal | big | huge
     tts_speed: float | None = None        # override auto-detected speed
     tts_temperature: float | None = None  # override auto-detected temperature
+    rich_text:     list[RichTextSpan] = field(default_factory=list)
+    rich_text_sub: list[RichTextSpan] = field(default_factory=list)
 
 
 @dataclass
@@ -92,3 +101,7 @@ class RenderConfig:
     gpt_sovits_ref:     str  = ""                         # reference audio path for voice cloning
     gpt_sovits_speed:   float = 0.88
     bg_music:           str  = ""
+    bg_music_start:     str  = ""   # "SS:cs" — seconds:centiseconds, e.g. "12:50" = 12.50s
+    bg_volume:          float = 0.09  # background music volume (0.0–1.0)
+    tts_volume:         float = 1.4   # TTS voice volume multiplier
+    tts_pitch:          float = 1.0   # pitch multiplier (0.93 = ~7% lower, 1.07 = ~7% higher)

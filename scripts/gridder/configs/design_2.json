@@ -1,0 +1,6 @@
+{
+  "panels": [
+    ["crying", "angry_pout", "sleepy_yawn", "shocked", "confused_thinking", "laughing_hard"],
+    ["embarrassed", "panic", "dizzy", "sick_fever", "determined", "mischief_grin"]
+  ]
+}
