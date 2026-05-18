@@ -79,6 +79,8 @@ class StoryBeat:
     tts_temperature: float | None = None  # override auto-detected temperature
     rich_text:     list[RichTextSpan] = field(default_factory=list)
     rich_text_sub: list[RichTextSpan] = field(default_factory=list)
+    bg_image:  str = ""    # per-beat background image path (overrides config.bg_image)
+    character: str = ""    # per-beat character override (overrides config.default_character)
 
 
 @dataclass
@@ -105,3 +107,5 @@ class RenderConfig:
     bg_volume:          float = 0.09  # background music volume (0.0–1.0)
     tts_volume:         float = 1.4   # TTS voice volume multiplier
     tts_pitch:          float = 1.0   # pitch multiplier (0.93 = ~7% lower, 1.07 = ~7% higher)
+    bg_image:           str   = ""    # default background image path (overridden per-beat)
+    default_character:  str   = "dimsum_cat"  # character used unless overridden per-beat

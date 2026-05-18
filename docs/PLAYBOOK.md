@@ -39,8 +39,16 @@ Characters live in `assets/sprites/<character_name>/`. More characters will be a
 | Folder | Name | Personality | Voice Ref |
 |--------|------|-------------|-----------|
 | `dimsum_cat` | DIMsum Cat | cute kawaii cat girl, she/her, expressive, slightly dramatic | `assets/audio_reference/dimsum_cat_korean.mp3` |
+| `taeho` | 태호 (Tae-ho) | elegant tiger king, always wealthy/high-status roles (royalty, CEO, first class), calm and composed but loses composure around good food | *(no voice — reactions only)* |
 
 > When a new character is added, update this table. Each character has its own animations folder and voice reference audio.
+
+### Multi-Character Support
+Per beat, set `"character": "<folder_name>"` to switch the active character:
+```json
+{ "animation": "first_bite", "character": "taeho", ... }
+```
+Default character is `dimsum_cat` unless overridden at the root level with `"character": "taeho"`.
 
 ### Universal Character Rules
 - Main `text` is always **Korean hangul**

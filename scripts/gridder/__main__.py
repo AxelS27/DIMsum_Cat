@@ -146,7 +146,8 @@ def build_grid(arr: np.ndarray):
 # Step 1 — Crop
 # ─────────────────────────────────────────────────────────────────────────────
 
-def step_crop(design_path: Path, out_dir: Path, panels: list[list[str]]) -> None:
+def step_crop(design_path: Path, out_dir: Path, panels: list[list[str]],
+              wide_cols: list[int] | None = None) -> None:
     print(f"\n[1/3] Crop — {design_path.name}")
     img = Image.open(design_path).convert("RGBA")
     arr = np.array(img)
@@ -154,7 +155,6 @@ def step_crop(design_path: Path, out_dir: Path, panels: list[list[str]]) -> None
 
     cell_rows, left_bands, right_bands, outer_w = build_grid(arr)
     print(f"  Rows ({len(cell_rows)}): {cell_rows}")
-    print(f"  L-seps: {[c for s,e,c in left_bands]}  R-seps: {[c for s,e,c in right_bands]}")
 
     def crop_panel(bands, names):
         frame_bands = bands[1:]
@@ -170,8 +170,18 @@ def step_crop(design_path: Path, out_dir: Path, panels: list[list[str]]) -> None
                 img.crop((x0, max(0,y0), x1, min(h,y1))).save(str(anim_dir / fname), "PNG")
             print(f"  {names[row_i]:<26} {y1-y0+1}px tall")
 
-    crop_panel(left_bands,  panels[0])
-    crop_panel(right_bands, panels[1])
+    if wide_cols is not None:
+        # Single-panel mode: all 4 frames span the full sheet width.
+        # wide_cols = explicit list of separator center-x values (all cols, no L/R split).
+        print(f"  Wide-cols mode: {wide_cols}")
+        all_bands = [(x - 3, x + 3, x) for x in wide_cols]
+        outer_w   = wide_cols[0] + 4
+        crop_panel(all_bands, panels[0])
+    else:
+        print(f"  L-seps: {[c for s,e,c in left_bands]}  R-seps: {[c for s,e,c in right_bands]}")
+        crop_panel(left_bands,  panels[0])
+        if len(panels) > 1:
+            crop_panel(right_bands, panels[1])
     print("  Done.")
 
 
@@ -183,11 +193,12 @@ def _build_upsampler():
     import torch
     from basicsr.archs.rrdbnet_arch import RRDBNet
     from realesrgan import RealESRGANer
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64,
                     num_block=6, num_grow_ch=32, scale=4)
     return RealESRGANer(scale=4, model_path=str(MODEL_PATH), model=model,
-                        tile=0, tile_pad=10, pre_pad=0, half=False,
-                        device=torch.device("cpu"))
+                        tile=0, tile_pad=10, pre_pad=0, half=torch.cuda.is_available(),
+                        device=device)
 
 
 def _upscale_one(up, fp: Path) -> tuple[int,int]:
@@ -201,7 +212,9 @@ def _upscale_one(up, fp: Path) -> tuple[int,int]:
 
 
 def step_upscale(out_dir: Path, panels: list[list[str]]) -> None:
-    print(f"\n[2/3] Upscale 4x — Real-ESRGAN anime model (CPU)")
+    import torch
+    device_label = "GPU (CUDA)" if torch.cuda.is_available() else "CPU"
+    print(f"\n[2/3] Upscale 4x — Real-ESRGAN anime model ({device_label})")
     if not MODEL_PATH.exists():
         sys.exit(f"  ERROR: weights not found at {MODEL_PATH}")
 
@@ -337,6 +350,90 @@ def _remove_bg(img: Image.Image) -> tuple[Image.Image, int]:
         kill_runs([(row,x) for x in range(w)], w)
         kill_runs([(h-1-row,x) for x in range(w)], w)
 
+    # Pass 4: remove horizontal border lines — scan from bottom upward,
+    # kill any row where visible pixels span > 70% of image width as a
+    # single connected run (cell border remnant, not body content).
+    alpha3 = arr[:,:,3]
+    for y in range(h - 1, max(0, h - 60), -1):
+        row_alpha = alpha3[y, :]
+        visible_xs = np.where(row_alpha > 0)[0]
+        if len(visible_xs) == 0:
+            continue
+        span = int(visible_xs[-1]) - int(visible_xs[0]) + 1
+        if span > w * 0.70 and len(visible_xs) >= w * 0.60:
+            arr[y, :, 3] = 0
+            n += int((row_alpha > 0).sum())
+
+    # Pass 4b: remove small isolated white pixel clusters (cell-border remnants).
+    # Find connected components of pure-white visible pixels; remove any cluster
+    # that is small (< 3% of image area) AND has no dark/colored neighbour.
+    r4, g4, b4, a4 = arr[:,:,0], arr[:,:,1], arr[:,:,2], arr[:,:,3]
+    is_white  = (r4 > 200) & (g4 > 200) & (b4 > 200) & (a4 > 0)
+    is_colored = a4 > 0 & ~is_white  # visible but not white
+    # Label connected white components
+    labeled = np.zeros((h, w), dtype=np.int32)
+    comp_id  = 0
+    comp_px  = {}
+    for sy in range(h):
+        for sx in range(w):
+            if is_white[sy, sx] and labeled[sy, sx] == 0:
+                comp_id += 1
+                comp_px[comp_id] = []
+                q = deque([(sy, sx)])
+                labeled[sy, sx] = comp_id
+                while q:
+                    cy, cx = q.popleft()
+                    comp_px[comp_id].append((cy, cx))
+                    for dy, dx in ((-1,0),(1,0),(0,-1),(0,1)):
+                        ny, nx = cy+dy, cx+dx
+                        if 0 <= ny < h and 0 <= nx < w and is_white[ny,nx] and labeled[ny,nx]==0:
+                            labeled[ny,nx] = comp_id
+                            q.append((ny, nx))
+    max_small = int(h * w * 0.03)
+    for cid, pixels in comp_px.items():
+        if len(pixels) >= max_small:
+            continue
+        # Check if any neighbour of this cluster is a colored (non-white) pixel
+        has_colored_neighbour = False
+        for cy, cx in pixels:
+            for dy, dx in ((-1,0),(1,0),(0,-1),(0,1)):
+                ny, nx = cy+dy, cx+dx
+                if 0 <= ny < h and 0 <= nx < w and a4[ny,nx] > 0 and not is_white[ny,nx]:
+                    has_colored_neighbour = True
+                    break
+            if has_colored_neighbour:
+                break
+
+        if not has_colored_neighbour:
+            # Isolated white cluster — remove
+            for cy, cx in pixels: arr[cy, cx, 3] = 0; n += 1
+        else:
+            # Has colored neighbours, but check fill ratio:
+            # Nearly perfect rectangles (fill > 0.88) are cell-border artifacts
+            pys = [p[0] for p in pixels]
+            pxs = [p[1] for p in pixels]
+            bbox_area = (max(pys)-min(pys)+1) * (max(pxs)-min(pxs)+1)
+            fill_ratio = len(pixels) / bbox_area if bbox_area > 0 else 0
+            if fill_ratio > 0.88 and len(pixels) < 2000:
+                for cy, cx in pixels: arr[cy, cx, 3] = 0; n += 1
+
+    # Pass 5: despill — remove white/light fringe pixels at character boundary.
+    # ESRGAN anti-aliases against the white cell background, leaving semi-transparent
+    # white halos. Kill any visible pixel where RGB is very bright (near-white) AND
+    # it's adjacent to a transparent pixel (i.e., it's on the boundary).
+    alpha5 = arr[:,:,3].astype(np.int32)
+    r5, g5, b5 = arr[:,:,0].astype(np.int32), arr[:,:,1].astype(np.int32), arr[:,:,2].astype(np.int32)
+    is_bright = (r5 > 220) & (g5 > 220) & (b5 > 220) & (alpha5 > 0)
+    # A pixel is "on boundary" if any of its 4 neighbours is transparent
+    pad_a = np.pad(alpha5, 1, constant_values=0)
+    has_transp_neighbour = (
+        (pad_a[:-2, 1:-1] == 0) | (pad_a[2:, 1:-1] == 0) |
+        (pad_a[1:-1, :-2] == 0) | (pad_a[1:-1, 2:] == 0)
+    )
+    fringe = is_bright & has_transp_neighbour
+    arr[fringe, 3] = 0
+    n += int(fringe.sum())
+
     return Image.fromarray(arr, "RGBA"), n
 
 
@@ -418,7 +515,9 @@ def main() -> None:
     if not cfg_path.exists():
         sys.exit(f"ERROR: no config found at {cfg_path}\n"
                  f"Create it with: {{\"panels\": [[\"anim1\",...],[\"anim1\",...]] }}")
-    panels: list[list[str]] = json.loads(cfg_path.read_text())["panels"]
+    cfg_data = json.loads(cfg_path.read_text())
+    panels: list[list[str]] = cfg_data["panels"]
+    wide_cols: list[int] | None = cfg_data.get("wide_cols")
 
     # Output dir
     out_dir = Path(args.out) if args.out else ROOT / "experiments" / "animations"
@@ -440,7 +539,7 @@ def main() -> None:
     steps = [args.step] if args.step else [1, 2, 3]
     t0    = time.time()
 
-    if 1 in steps: step_crop(design_path, out_dir, panels)
+    if 1 in steps: step_crop(design_path, out_dir, panels, wide_cols=wide_cols)
     if 2 in steps: step_upscale(out_dir, panels)
     if 3 in steps: step_remove_bg(out_dir, panels)
 

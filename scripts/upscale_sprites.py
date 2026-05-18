@@ -58,6 +58,7 @@ def build_upsampler() -> RealESRGANer:
         num_in_ch=3, num_out_ch=3, num_feat=64,
         num_block=6, num_grow_ch=32, scale=4,
     )
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     return RealESRGANer(
         scale=4,
         model_path=str(MODEL_PATH),
@@ -65,8 +66,8 @@ def build_upsampler() -> RealESRGANer:
         tile=0,
         tile_pad=10,
         pre_pad=0,
-        half=False,    # CPU: no fp16
-        device=torch.device("cpu"),
+        half=torch.cuda.is_available(),
+        device=device,
     )
 
 
