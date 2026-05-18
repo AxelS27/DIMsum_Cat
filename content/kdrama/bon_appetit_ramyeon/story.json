@@ -1,0 +1,206 @@
+{
+  "title": "왕한테 라면 해줬더니...",
+  "description": "왕한테 라면 해줬더니 이러는 거 실화냐 🐱\n\n#dimsumcat #kawaii #fyp #foryou #viral #kpop #kdrama #cdrama #anime #cute #blowthisup #xyzbca #trending #coquette #softlife #kdrama #koreandrama #dramarecap #kdramaclip #bonappetit #ramyeon #라면",
+
+  "animation": "cooking_stir",
+  "character": "dimsum_cat",
+  "bg": "#f5e6c8",
+  "fps": 24,
+  "duration": 38.0,
+  "width": 1080,
+  "height": 1920,
+
+  "tts": true,
+  "tts_provider": "gpt_sovits",
+  "gpt_sovits_ref": "../../../assets/audio_reference/dimsum_cat_korean.mp3",
+  "bg_music": "../../../assets/music/bon_appetit.mp3",
+  "bg_music_start": "5:00",
+  "watermark": "../../../assets/sprites/watermark_white.png",
+  "pinned_comment": "라면 하나로 왕실 주방장이 됐어요 🍜👑\n여러분은 어떤 음식으로 누군가의 마음 사로잡아봤어요?",
+
+  "beats": [
+    {
+      "time": 0.0,
+      "text": "오늘 왕한테 라면 만들어 줬어",
+      "sub": "I made ramyeon for the king today",
+      "rich_text": [
+        {"text": "오늘 ", "color": "#ffffff"},
+        {"text": "왕", "color": "#FFD700"},
+        {"text": "한테 ", "color": "#ffffff"},
+        {"text": "라면", "color": "#FF6B6B"},
+        {"text": " 만들어 줬어", "color": "#ffffff"}
+      ],
+      "animation": "cooking_stir",
+      "character": "dimsum_cat",
+      "pos": "center",
+      "scale": 1.0,
+      "text_size": "big",
+      "bg_image": "../../../assets/background/kitchen.png"
+    },
+    {
+      "time": 3.5,
+      "text": "근데 왕이 라면을 한 번도 먹어본 적이 없대",
+      "sub": "turns out the king had never eaten ramyeon before",
+      "rich_text": [
+        {"text": "근데 ", "color": "#ffffff"},
+        {"text": "왕", "color": "#FFD700"},
+        {"text": "이 ", "color": "#ffffff"},
+        {"text": "라면", "color": "#FF6B6B"},
+        {"text": "을 한 번도 먹어본 적이 없대", "color": "#ffffff"}
+      ],
+      "animation": "cooking_taste",
+      "character": "dimsum_cat",
+      "pos": "center",
+      "scale": 1.0,
+      "text_size": "normal",
+      "bg_image": "../../../assets/background/kitchen.png"
+    },
+    {
+      "time": 7.5,
+      "text": "그래서 일단 끓여드렸지",
+      "sub": "so I just made it anyway",
+      "rich_text": [
+        {"text": "그래서 일단 ", "color": "#ffffff"},
+        {"text": "끓여드렸지", "color": "#FF9F43"}
+      ],
+      "animation": "cooking_present",
+      "character": "dimsum_cat",
+      "pos": "center",
+      "scale": 0.95,
+      "text_size": "normal",
+      "bg_image": "../../../assets/background/kitchen.png"
+    },
+    {
+      "time": 11.0,
+      "text": "한 입 드시더니",
+      "sub": "he took one bite and",
+      "rich_text": [
+        {"text": "한 입 ", "color": "#ffffff"},
+        {"text": "드시더니", "color": "#FFD700"}
+      ],
+      "animation": "neutral_regal",
+      "character": "taeho",
+      "pos": "0.5,0.72",
+      "scale": 1.3,
+      "text_size": "big",
+      "tts_speed": 0.80,
+      "tts_temperature": 1.3,
+      "bg_image": "../../../assets/background/dining_hall.png"
+    },
+    {
+      "time": 14.0,
+      "text": "눈이 이렇게 커지는 거야!!",
+      "sub": "his eyes went THIS big!!",
+      "rich_text": [
+        {"text": "눈이 이렇게 ", "color": "#ffffff"},
+        {"text": "커지는 거야!!", "color": "#FF6B6B"}
+      ],
+      "animation": "first_bite",
+      "character": "taeho",
+      "pos": "0.5,0.72",
+      "scale": 1.6,
+      "text_size": "huge",
+      "tts_speed": 0.85,
+      "tts_temperature": 1.75,
+      "bg_image": "../../../assets/background/dining_hall.png"
+    },
+    {
+      "time": 17.5,
+      "text": "진짜 맛있나봐",
+      "sub": "he was genuinely losing it",
+      "rich_text": [
+        {"text": "진짜 ", "color": "#ffffff"},
+        {"text": "맛있나봐", "color": "#FF6B6B"}
+      ],
+      "animation": "overjoyed_eating",
+      "character": "taeho",
+      "pos": "0.5,0.72",
+      "scale": 1.9,
+      "text_size": "big",
+      "tts_speed": 0.82,
+      "tts_temperature": 1.6,
+      "bg_image": "../../../assets/background/dining_hall.png"
+    },
+    {
+      "time": 21.0,
+      "text": "더 달라고 난리남",
+      "sub": "and demanded more immediately",
+      "rich_text": [
+        {"text": "더 달라고 ", "color": "#ffffff"},
+        {"text": "난리남", "color": "#FFD700"}
+      ],
+      "animation": "more_please",
+      "character": "taeho",
+      "pos": "0.5,0.72",
+      "scale": 1.4,
+      "text_size": "big",
+      "tts_speed": 0.88,
+      "tts_temperature": 1.5,
+      "bg_image": "../../../assets/background/dining_hall.png"
+    },
+    {
+      "time": 24.5,
+      "text": "그 다음날도 라면 달라고 했다",
+      "sub": "he asked for ramyeon again the next day",
+      "rich_text": [
+        {"text": "그 다음날도 ", "color": "#ffffff"},
+        {"text": "라면", "color": "#FF6B6B"},
+        {"text": " 달라고 했다", "color": "#ffffff"}
+      ],
+      "animation": "cooking_explain",
+      "character": "dimsum_cat",
+      "pos": "right-low",
+      "scale": 0.38,
+      "text_size": "big",
+      "bg_image": "../../../assets/background/ramyeon_closeup.png"
+    },
+    {
+      "time": 28.0,
+      "text": "그 다다음날도",
+      "sub": "and the day after that",
+      "rich_text": [
+        {"text": "그 ", "color": "#ffffff"},
+        {"text": "다다음날도", "color": "#FF9F43"}
+      ],
+      "animation": "cooking_explain",
+      "character": "dimsum_cat",
+      "pos": "left-low",
+      "scale": 0.38,
+      "text_size": "big",
+      "bg_image": "../../../assets/background/ramyeon_closeup.png"
+    },
+    {
+      "time": 31.0,
+      "text": "나 이제 왕실 주방장이야",
+      "sub": "I'm basically the royal chef now",
+      "rich_text": [
+        {"text": "나 이제 ", "color": "#ffffff"},
+        {"text": "왕실 주방장", "color": "#FFD700"},
+        {"text": "이야", "color": "#ffffff"}
+      ],
+      "animation": "cooking_present",
+      "character": "dimsum_cat",
+      "pos": "right-low",
+      "scale": 0.45,
+      "text_size": "big",
+      "bg_image": "../../../assets/background/ramyeon_closeup.png"
+    },
+    {
+      "time": 34.5,
+      "text": "라면 하나로",
+      "sub": "all because of one pack of ramyeon",
+      "rich_text": [
+        {"text": "라면", "color": "#FF6B6B"},
+        {"text": " 하나로", "color": "#ffffff"}
+      ],
+      "animation": "smirk",
+      "character": "dimsum_cat",
+      "pos": "right-low",
+      "scale": 0.45,
+      "text_size": "huge",
+      "tts_speed": 0.75,
+      "tts_temperature": 1.8,
+      "bg_image": "../../../assets/background/ramyeon_closeup.png"
+    }
+  ]
+}

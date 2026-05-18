@@ -107,6 +107,8 @@ def load_story_json(path: Path, args: argparse.Namespace) -> RenderConfig:
             tts_temperature = float(b["tts_temperature"]) if b.get("tts_temperature") is not None else None,
             rich_text       = _load_rich_text(b.get("rich_text")),
             rich_text_sub   = _load_rich_text(b.get("rich_text_sub")),
+            bg_image        = b.get("bg_image", ""),
+            character       = b.get("character", ""),
         )
         for b in raw_beats
     ]
@@ -123,6 +125,8 @@ def load_story_json(path: Path, args: argparse.Namespace) -> RenderConfig:
         width             = int(data.get("width", args.width)),
         height            = int(data.get("height", args.height)),
         bg                = data.get("bg", args.bg),
+        bg_image          = _resolve_story_path(data.get("bg_image", ""), story_dir),
+        default_character = data.get("character", "dimsum_cat"),
         watermark         = data.get("watermark", args.watermark),
         save_gif          = args.gif,
         tts               = data.get("tts", args.tts),

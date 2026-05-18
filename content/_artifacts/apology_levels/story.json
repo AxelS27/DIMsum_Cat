@@ -1,0 +1,117 @@
+{
+  "title": "Korean Apology Levels",
+  "description": "한국어 사과 레벨 -미안해부터 백배사죄까지!! 🐱\n어느 레벨까지 써봤어?\n\n#dimsumcat #kawaii #fyp #foryou #viral #kpop #kdrama #cdrama #anime #cute #blowthisup #xyzbca #trending #coquette #softlife\n#learnkorean #korean101 #koreanwords #studykorean #hangul #koreanculture",
+  "pinned_comment": "여러분은 어느 레벨까지 써봤어요? 😂\n저는 백배사죄까지 가본 적 있는데... 말 못 해요",
+
+  "animation": "excited_talk",
+  "bg": "#f0f5fd",
+  "fps": 24,
+  "width": 1080,
+  "height": 1920,
+
+  "tts": true,
+  "gpt_sovits_ref": "../../../assets/audio_reference/dimsum_cat_korean.mp3",
+  "gpt_sovits_speed": 0.95,
+  "gpt_sovits_server": "http://127.0.0.1:9880",
+
+  "bg_music": "../../../assets/music/rude.mp3",
+  "bg_music_start": "00:00",
+  "bg_volume": 0.12,
+  "tts_volume": 1.6,
+  "tts_pitch": 1.0,
+
+  "beats": [
+    {
+      "time": 0.0,
+      "text": "야, 한국어 사과 레벨 알아? 같이 배워보자!",
+      "sub": "hey, do you know Korean apology levels? let's learn!",
+      "rich_text": [
+        {"text": "야, 한국어 ", "color": "#2a2a2a"},
+        {"text": "사과 레벨", "color": "#e91e8c"},
+        {"text": " 알아? 같이 배워보자!", "color": "#2a2a2a"}
+      ],
+      "animation": "excited_talk",
+      "pos": "center",
+      "scale": 1.1,
+      "text_size": "big"
+    },
+    {
+      "time": 4.0,
+      "text": "미안해 -친구한테 살짝 미안할 때 쓰는 거야",
+      "sub": "mi-an-hae -casual sorry, use with close friends",
+      "rich_text": [
+        {"text": "미안해", "color": "#e91e8c"},
+        {"text": " -친구한테 살짝 미안할 때 쓰는 거야", "color": "#2a2a2a"}
+      ],
+      "animation": "bow_nod",
+      "pos": "center",
+      "scale": 1.0,
+      "text_size": "big"
+    },
+    {
+      "time": 8.5,
+      "text": "미안해요 -어른한테 정중하게 미안할 때!",
+      "sub": "mi-an-hae-yo -polite sorry, use with elders",
+      "rich_text": [
+        {"text": "미안해요", "color": "#e91e8c"},
+        {"text": " -어른한테 정중하게 미안할 때!", "color": "#2a2a2a"}
+      ],
+      "animation": "bow_polite",
+      "pos": "center",
+      "scale": 1.0,
+      "text_size": "big"
+    },
+    {
+      "time": 13.0,
+      "text": "죄송해요 -이제 좀 더 진심으로 미안한 거야",
+      "sub": "joe-song-hae-yo -more sincere and formal sorry",
+      "rich_text": [
+        {"text": "죄송해요", "color": "#e91e8c"},
+        {"text": " -이제 좀 더 진심으로 미안한 거야", "color": "#2a2a2a"}
+      ],
+      "animation": "bow_medium",
+      "pos": "center",
+      "scale": 1.1,
+      "text_size": "big"
+    },
+    {
+      "time": 17.5,
+      "text": "죄송합니다 -공식적으로 진심으로 사과할 때 써",
+      "sub": "joe-song-ham-ni-da -formal, very sincere apology",
+      "rich_text": [
+        {"text": "죄송합니다", "color": "#e91e8c"},
+        {"text": " -공식적으로 진심으로 사과할 때 써", "color": "#2a2a2a"}
+      ],
+      "animation": "bow_formal",
+      "pos": "center",
+      "scale": 1.1,
+      "text_size": "big"
+    },
+    {
+      "time": 22.0,
+      "text": "정말 죄송합니다 -이건 진짜 크게 잘못했을 때야",
+      "sub": "jeong-mal joe-song-ham-ni-da -I'm really so sorry",
+      "rich_text": [
+        {"text": "정말 죄송합니다", "color": "#e91e8c"},
+        {"text": " -이건 진짜 크게 잘못했을 때야", "color": "#2a2a2a"}
+      ],
+      "animation": "bow_deep",
+      "pos": "center",
+      "scale": 1.2,
+      "text_size": "huge"
+    },
+    {
+      "time": 27.0,
+      "text": "백배사죄합니다 -이 정도면 제발 용서해줘!!",
+      "sub": "baek-bae sa-joe -apologizing 100x, please forgive me!!",
+      "rich_text": [
+        {"text": "백배사죄합니다", "color": "#e91e8c"},
+        {"text": " -이 정도면 제발 용서해줘!!", "color": "#2a2a2a"}
+      ],
+      "animation": "bow_prostrate",
+      "pos": "center",
+      "scale": 1.3,
+      "text_size": "huge"
+    }
+  ]
+}

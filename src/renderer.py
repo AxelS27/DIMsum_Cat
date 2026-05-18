@@ -29,12 +29,33 @@ from src.sprite import organic, make_sprite_schedule, load_frames
 # Rendering
 # ---------------------------------------------------------------------------
 
-def make_background(size: tuple[int, int], bg_hex: str) -> Image.Image:
-    """Clean solid pastel — no distracting blobs, just a very faint center glow."""
+_BG_IMAGE_CACHE: dict[str, Image.Image] = {}
+
+
+def make_background(
+    size: tuple[int, int],
+    bg_hex: str,
+    bg_image: str = "",
+    story_dir: "Path | None" = None,
+) -> Image.Image:
+    """Return background canvas — image if bg_image is set, else solid pastel."""
+    if bg_image:
+        from pathlib import Path
+        from src.models import ROOT
+        p = Path(bg_image)
+        if not p.is_absolute():
+            p = (story_dir / bg_image) if story_dir else (ROOT / bg_image)
+        cache_key = str(p) + str(size)
+        if cache_key not in _BG_IMAGE_CACHE:
+            img = Image.open(p).convert("RGBA")
+            if img.size != size:
+                img = img.resize(size, Image.Resampling.LANCZOS)
+            _BG_IMAGE_CACHE[cache_key] = img
+        return _BG_IMAGE_CACHE[cache_key].copy()
+
     hex_str = bg_hex.strip().lstrip("#")
     base = tuple(int(hex_str[i:i+2], 16) for i in (0, 2, 4))
     canvas = Image.new("RGBA", size, (*base, 255))
-    # Faint lighter center glow for subtle depth
     glow = Image.new("RGBA", size, (0, 0, 0, 0))
     lighter = tuple(min(255, c + 18) for c in base)
     ImageDraw.Draw(glow).ellipse(
@@ -174,6 +195,17 @@ def draw_text_overlay(
     y = zone_top + max(0, (zone_h - total_h) // 2)
 
     layer = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+
+    # Semi-transparent dark band behind text for readability on busy backgrounds
+    band_pad = int(18 * w_scale)
+    band_y0  = max(0, y - band_pad)
+    band_y1  = min(canvas.height, y + total_h + band_pad)
+    band_alpha = int(120 * alpha / 255)
+    ImageDraw.Draw(layer).rounded_rectangle(
+        [int(canvas.width * 0.04), band_y0, int(canvas.width * 0.96), band_y1],
+        radius=int(16 * w_scale),
+        fill=(0, 0, 0, band_alpha),
+    )
     draw  = ImageDraw.Draw(layer)
 
     def render_line(line: str, font: ImageFont.ImageFont, color: tuple[int, int, int]) -> int:
@@ -200,8 +232,8 @@ def draw_text_overlay(
         for line in main_lines:
             w, h = measure(draw, line, main_font)
             x = (canvas.width - w) // 2
-            draw.text((x + 2, y + 2), line, font=main_font, fill=(0, 0, 0, int(55 * alpha / 255)))
-            draw.text((x, y), line, font=main_font, fill=(42, 42, 42, alpha))
+            draw.text((x, y), line, font=main_font, fill=(255, 255, 255, alpha),
+                      stroke_width=4, stroke_fill=(20, 20, 20, alpha))
             y += h + gap_ln
 
     if rich_sub_rows:
@@ -216,8 +248,8 @@ def draw_text_overlay(
         for line in sub_lines:
             w, h = measure(draw, line, sub_font)
             x = (canvas.width - w) // 2
-            draw.text((x + 1, y + 1), line, font=sub_font, fill=(0, 0, 0, int(40 * alpha / 255)))
-            draw.text((x, y), line, font=sub_font, fill=(110, 110, 110, alpha))
+            draw.text((x, y), line, font=sub_font, fill=(255, 255, 230, alpha),
+                      stroke_width=2, stroke_fill=(20, 20, 20, alpha))
             y += h + gap_ln
 
     canvas.alpha_composite(layer)
@@ -227,10 +259,16 @@ def render_video_frames(config: RenderConfig) -> list[Image.Image]:
     total_frames = max(1, int(config.duration * config.fps))
     w_scale = config.width / 720
 
-    # Pre-load all animations referenced in beats
-    anim_names = {config.default_animation} | {b.animation for b in config.beats if b.animation}
-    anim_cache: dict[str, tuple[list[Image.Image], tuple[int, int]]] = {
-        name: load_frames(name) for name in anim_names
+    # Pre-load all animations referenced in beats, keyed by (character, animation)
+    def _char(beat: "StoryBeat") -> str:
+        return beat.character or config.default_character
+
+    anim_keys: set[tuple[str, str]] = {(config.default_character, config.default_animation)}
+    for b in config.beats:
+        if b.animation:
+            anim_keys.add((_char(b), b.animation))
+    anim_cache: dict[tuple[str, str], tuple[list[Image.Image], tuple[int, int]]] = {
+        (ch, name): load_frames(name, character=ch) for ch, name in anim_keys
     }
 
     # Sort and ensure a beat at t=0 — use first beat's pos/scale so cat
@@ -243,18 +281,29 @@ def render_video_frames(config: RenderConfig) -> list[Image.Image]:
             animation=config.default_animation,
             pos=first.pos if first else "center",
             scale=first.scale if first else 1.0,
+            bg_image=first.bg_image if first else "",
+            character=first.character if first else "",
         ))
 
-    # Pre-compute irregular sprite schedule per animation
-    sprite_schedules: dict[str, list[int]] = {
-        name: make_sprite_schedule(total_frames, config.fps, len(frames))
-        for name, (frames, _) in anim_cache.items()
+    # Pre-compute irregular sprite schedule per (character, animation)
+    sprite_schedules: dict[tuple[str, str], list[int]] = {
+        key: make_sprite_schedule(total_frames, config.fps, len(frames))
+        for key, (frames, _) in anim_cache.items()
     }
 
     # Load PNG watermark once, scaled to 42% of canvas width, semi-transparent
+    from pathlib import Path as _Path
+    from src.models import ROOT as _ROOT
     wm_img: Image.Image | None = None
-    if WATERMARK_PNG.exists():
-        _wm = Image.open(WATERMARK_PNG).convert("RGBA")
+    _wm_path = WATERMARK_PNG
+    if config.watermark:
+        _p = _Path(config.watermark)
+        if not _p.is_absolute():
+            _p = (config.story_dir / config.watermark) if config.story_dir else (_ROOT / config.watermark)
+        if _p.exists():
+            _wm_path = _p
+    if _wm_path.exists():
+        _wm = Image.open(_wm_path).convert("RGBA")
         wm_target_w = int(config.width * 0.42)
         wm_ratio    = wm_target_w / _wm.width
         _wm = _wm.resize(
@@ -277,11 +326,13 @@ def render_video_frames(config: RenderConfig) -> list[Image.Image]:
                 idx = i
         return idx, beats[idx]
 
-    def anim_at(beat_idx: int) -> str:
+    def anim_at(beat_idx: int) -> tuple[str, str]:
+        """Return (character, animation) — walk backward to find the last beat with an animation set."""
         for i in range(beat_idx, -1, -1):
             if beats[i].animation:
-                return beats[i].animation
-        return config.default_animation
+                char = beats[i].character or config.default_character
+                return char, beats[i].animation
+        return config.default_character, config.default_animation
 
     rendered: list[Image.Image] = []
 
@@ -291,10 +342,11 @@ def render_video_frames(config: RenderConfig) -> list[Image.Image]:
         age = t - beat.time
 
         # --- Sprite frame from pre-computed irregular schedule ---
-        anim_name               = anim_at(beat_idx)
-        sprite_frames, orig_size = anim_cache[anim_name]
-        sprite                  = sprite_frames[sprite_schedules[anim_name][idx]].copy()
-        orig_w, orig_h          = orig_size
+        anim_char, anim_name     = anim_at(beat_idx)
+        cache_key                = (anim_char, anim_name)
+        sprite_frames, orig_size = anim_cache[cache_key]
+        sprite                   = sprite_frames[sprite_schedules[cache_key][idx]].copy()
+        orig_w, orig_h           = orig_size
 
         # --- Character position / scale with spring transition ---
         target_cx, target_cy = resolve_pos(beat.pos)
@@ -342,7 +394,9 @@ def render_video_frames(config: RenderConfig) -> list[Image.Image]:
         # ----------------------------------------------------------------
         # Compose frame
         # ----------------------------------------------------------------
-        canvas = make_background((config.width, config.height), config.bg)
+        active_bg_image = beat.bg_image or config.bg_image
+        canvas = make_background((config.width, config.height), config.bg,
+                                  bg_image=active_bg_image, story_dir=config.story_dir)
 
         # Text — fades in on beat entry
         text_alpha = min(255, int(255 * age / FADE_IN)) if age < FADE_IN else 255

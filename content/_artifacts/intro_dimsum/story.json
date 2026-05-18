@@ -1,0 +1,105 @@
+{
+  "title": "DIMsum Cat Introduction",
+  "description": "야야야 나 왔어! 기다렸잖아 🐱\n한국어 플러팅부터 드라마 명대사, 케이팝까지 같이 배워보자!\n\n#dimsumcat #kawaii #fyp #foryou #viral #kpop #kdrama #cdrama #anime #cute #blowthisup #xyzbca #trending #coquette #softlife\n#learnkorean #korean101 #koreanwords #studykorean #hangul #koreanculture",
+  "pinned_comment": "안녕하세요~ 딤섬냥이 채널에 오신 걸 환영해요 🐾🎀\n귀엽고 따뜻한 영상으로 찾아올게요!\n\n아직 시작 단계라 많은 관심 부탁드려요 🥺\n어떤 영상 보고 싶은지, 뭐가 좋았는지 댓글로 남겨주세요~\n여러분 피드백이 큰 힘이 돼요 💌\n\n앞으로 잘 부탁드려요~ 🍡✨",
+
+  "animation": "excited_talk",
+  "bg": "#f5f0ff",
+  "fps": 24,
+  "width": 1080,
+  "height": 1920,
+
+  "tts": true,
+  "gpt_sovits_ref": "../../../assets/audio_reference/dimsum_cat_korean.mp3",
+  "gpt_sovits_speed": 0.95,
+  "gpt_sovits_server": "http://127.0.0.1:9880",
+
+  "bg_music": "../../../assets/music/pretty_please.mp3",
+  "bg_music_start": "48:50",
+  "bg_volume": 0.12,
+  "tts_volume": 1.6,
+  "tts_pitch": 1.0,
+
+  "beats": [
+    {
+      "time": 0.0,
+      "text": "안뇽하세요오!! 기다리셨죠? 나 진짜 왔어요!!",
+      "tts_temperature": 1.55,
+      "sub": "anyeonghaseyo! You waited right? I'm here!",
+      "animation": "excited_talk",
+      "pos": "center",
+      "scale": 1.1,
+      "text_size": "big",
+      "rich_text": [
+        {"text": "안뇽하세요오! ", "color": "#e8537a"},
+        {"text": "기다리셨죠? 나 진짜 왔어요!", "color": "#2a2a2a"}
+      ]
+    },
+    {
+      "time": 3.0,
+      "text": "나 딤섬 캣이야, 잘 부탁해!",
+      "sub": "I'm DIMsum Cat, nice to meet ya!",
+      "animation": "normal_talk",
+      "pos": "right",
+      "scale": 1.0,
+      "text_size": "big",
+      "rich_text": [
+        {"text": "나 ", "color": "#2a2a2a"},
+        {"text": "딤섬 캣", "color": "#e8537a"},
+        {"text": "이야, 잘 부탁해!", "color": "#2a2a2a"}
+      ]
+    },
+    {
+      "time": 6.5,
+      "text": "있잖아, 한국어 플러팅 나한테 배워!",
+      "sub": "wanna learn Korean flirting words?",
+      "animation": "wink",
+      "pos": "center",
+      "scale": 1.15,
+      "text_size": "big",
+      "rich_text": [
+        {"text": "있잖아, ", "color": "#2a2a2a"},
+        {"text": "한국어 플러팅", "color": "#e8537a"},
+        {"text": " 나한테 배워!", "color": "#2a2a2a"}
+      ]
+    },
+    {
+      "time": 10.5,
+      "text": "드라마 속 설레는 말들 다 알려줄게!",
+      "sub": "those heart-fluttering drama lines!",
+      "animation": "heart_eyes",
+      "pos": "center-low",
+      "scale": 1.0,
+      "text_size": "big",
+      "rich_text": [
+        {"text": "드라마", "color": "#7b5ea7"},
+        {"text": " 속 설레는 말들 다 알려줄게!", "color": "#2a2a2a"}
+      ]
+    },
+    {
+      "time": 14.0,
+      "text": "케이팝, 피오브이, 다 내가 해줄게!!",
+      "sub": "K-pop, POV, I've got it all!!",
+      "animation": "cheering",
+      "pos": "center",
+      "scale": 1.2,
+      "text_size": "big",
+      "tts_temperature": 1.20,
+      "rich_text": [
+        {"text": "케이팝", "color": "#e8537a"},
+        {"text": ", ", "color": "#2a2a2a"},
+        {"text": "POV", "color": "#7b5ea7"},
+        {"text": ", 다 내가 해줄게!!", "color": "#2a2a2a"}
+      ]
+    },
+    {
+      "time": 17.5,
+      "text": "팔로우 눌러줘, 매일 올 거거든!",
+      "sub": "follow me, I'll post every day!",
+      "animation": "blow_kiss",
+      "pos": "center",
+      "scale": 1.1,
+      "text_size": "big"
+    }
+  ]
+}

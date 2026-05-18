@@ -112,16 +112,17 @@ def _repair_clipped_edges(img: Image.Image, check_px: int = 3, smear_px: int = 1
     return Image.fromarray(out, "RGBA")
 
 
-def load_frames(animation: str) -> tuple[list[Image.Image], tuple[int, int]]:
+def load_frames(animation: str, character: str = "") -> tuple[list[Image.Image], tuple[int, int]]:
     """Load sprite frames, repair clipped edges, pad, and pre-upscale once.
 
     Returns (upscaled_frames, original_size_before_any_processing).
     Pre-upscaling means per-frame work is mostly a downscale → sharp output.
     """
-    anim_dir = ANIMATIONS_ROOT / animation
+    from src.models import SPRITES_ROOT
+    anim_dir = (SPRITES_ROOT / character / "animations" / animation) if character else (ANIMATIONS_ROOT / animation)
     if not anim_dir.exists():
         available = ", ".join(list_animations()) or "none"
-        raise FileNotFoundError(f"Animation '{animation}' not found. Available: {available}")
+        raise FileNotFoundError(f"Animation '{animation}' not found for character '{character or 'dimsum_cat'}'. Available: {available}")
     frames = []
     for name in FRAME_NAMES:
         p = anim_dir / name
