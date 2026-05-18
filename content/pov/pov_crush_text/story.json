@@ -1,0 +1,93 @@
+{
+  "title": "POV: Crush Texted First",
+  "description": "피오브이... 오빠가 먼저 카톡 보냈을 때 🐱\n\n#dimsumcat #kawaii #fyp #foryou #viral #kpop #kdrama #cdrama #anime #cute #blowthisup #xyzbca #trending #coquette #softlife\n#pov #povstory #scenario #relatable #storytime",
+
+  "animation": "normal_talk",
+  "bg": "#fdf0f5",
+  "fps": 24,
+  "width": 1080,
+  "height": 1920,
+
+  "tts": true,
+  "gpt_sovits_ref": "../../../assets/audio_reference/dimsum_cat_korean.mp3",
+  "gpt_sovits_speed": 0.95,
+  "gpt_sovits_server": "http://127.0.0.1:9880",
+
+  "bg_music": "../../../assets/music/style.mp3",
+  "bg_music_start": "00:00",
+  "bg_volume": 0.12,
+  "tts_volume": 1.6,
+  "tts_pitch": 1.0,
+
+  "beats": [
+    {
+      "time": 0.0,
+      "text": "피오브이: 오빠가 먼저 카톡 보냈어",
+      "sub": "POV: your crush texted you first",
+      "rich_text": [
+        {"text": "POV: ", "color": "#e91e8c"},
+        {"text": "오빠가 먼저 카톡 ", "color": "#2a2a2a"},
+        {"text": "보냈어", "color": "#ff6b6b"}
+      ],
+      "animation": "got_a_text",
+      "pos": "center",
+      "scale": 1.0,
+      "text_size": "big"
+    },
+    {
+      "time": 4.0,
+      "text": "헐... 이거 실화야? 눈을 못 믿겠어!!",
+      "sub": "wait... is this real?? I literally can't 😭",
+      "rich_text": [
+        {"text": "헐... 이거 ", "color": "#2a2a2a"},
+        {"text": "실화야?", "color": "#e91e8c"},
+        {"text": " 눈을 못 믿겠어!!", "color": "#2a2a2a"}
+      ],
+      "animation": "shocked",
+      "pos": "center",
+      "scale": 1.3,
+      "text_size": "huge"
+    },
+    {
+      "time": 8.0,
+      "text": "뭐라고 답장하지, 세상에 너무 설레잖아",
+      "sub": "what do I even say... I'm literally shaking",
+      "rich_text": [
+        {"text": "뭐라고 답장하지, 세상에 ", "color": "#2a2a2a"},
+        {"text": "너무 설레잖아", "color": "#e91e8c"}
+      ],
+      "animation": "nervous_sweat",
+      "pos": "center-low",
+      "scale": 1.0,
+      "text_size": "big"
+    },
+    {
+      "time": 12.0,
+      "text": "일단 쿨한 척 삼십 분 기다렸다가 보내야지",
+      "sub": "gonna wait 30 mins to seem totally chill",
+      "rich_text": [
+        {"text": "일단 ", "color": "#2a2a2a"},
+        {"text": "쿨한 척 ", "color": "#e91e8c"},
+        {"text": "삼십 분 기다렸다가 보내야지", "color": "#2a2a2a"}
+      ],
+      "animation": "mischief_grin",
+      "pos": "right",
+      "scale": 1.1,
+      "text_size": "big"
+    },
+    {
+      "time": 16.0,
+      "text": "이미 일 초 만에 답장해버렸잖아!!",
+      "sub": "...already replied in 1 second 💀",
+      "rich_text": [
+        {"text": "이미 ", "color": "#2a2a2a"},
+        {"text": "일 초 만에 ", "color": "#ff6b6b"},
+        {"text": "답장해버렸잖아!!", "color": "#e91e8c"}
+      ],
+      "animation": "laughing_hard",
+      "pos": "center",
+      "scale": 1.2,
+      "text_size": "huge"
+    }
+  ]
+}

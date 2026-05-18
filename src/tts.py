@@ -39,18 +39,26 @@ def _should_speak(text: str) -> bool:
     return bool(clean) and len(clean) >= 2 and not all(c in ".…zZ!? " for c in clean)
 
 
+def _korean_syllable_count(text: str) -> int:
+    return sum(1 for c in text if '가' <= c <= '힣')
+
+
 def _detect_emotion(text: str) -> tuple[float, float, float]:
     """Return (speed_factor, temperature, repetition_penalty) based on emotion."""
     t = text.strip()
     if t.endswith("!!") or t.endswith("!!!"):
-        return 1.15, 1.70, 1.15  # very excited / energetic
+        return 0.97, 1.60, 1.10
     if t.endswith("!"):
-        return 1.06, 1.30, 1.25  # mild excitement
+        # Short sentences (≤6 Korean syllables) don't benefit from high temp —
+        # they already sound energetic and high temp causes wobble on short clips.
+        if _korean_syllable_count(t) <= 6:
+            return 0.90, 1.10, 1.30  # treat as neutral
+        return 0.93, 1.40, 1.20
     if t in ("....", "...", "…"):
-        return 0.75, 0.80, 1.4   # silent pause beat
+        return 0.80, 0.85, 1.40
     if ".." in t or "…" in t:
-        return 0.82, 0.85, 1.35  # subdued / trailing off
-    return 0.88, 1.10, 1.35      # neutral
+        return 0.85, 0.95, 1.35
+    return 0.90, 1.25, 1.30
 
 
 def _has_repetition(text: str) -> bool:
@@ -79,10 +87,10 @@ def _gpt_sovits_clip(
         "ref_audio_path": ref_audio,
         "prompt_lang": "ko",
         "prompt_text": "",
-        "speed_factor":        speed       if speed       is not None else auto_speed,
-        "temperature":         temperature if temperature is not None else auto_temp,
-        "repetition_penalty":  rep_penalty,
-        "top_k": 10,
+        "speed_factor":       speed       if speed       is not None else auto_speed,
+        "temperature":        temperature if temperature is not None else auto_temp,
+        "repetition_penalty": rep_penalty,
+        "top_k": 15,
         "streaming_mode": False,
         "batch_size": 1,
     }, timeout=120)
@@ -100,6 +108,7 @@ def build_tts_audio(
     gpt_sovits_speed: float = 0.88,
     return_durations: bool = False,
     pregenerated_dir: Path | None = None,
+    tts_pitch: float = 1.0,
 ) -> bool | dict:
     """Generate a timed audio track from beat texts using ffmpeg filter_complex.
 
@@ -131,8 +140,9 @@ def build_tts_audio(
             return False
         try:
             for i, b in speak_beats:
-                print(f"    GPT-SoVITS: {b.text}")
-                _gpt_sovits_clip(b.text, ref, tmp_dir / f"beat_{i:02d}.wav",
+                tts_text = b.text.replace("~", "").strip()
+                print(f"    GPT-SoVITS: {tts_text}")
+                _gpt_sovits_clip(tts_text, ref, tmp_dir / f"beat_{i:02d}.wav",
                                  server=server,
                                  speed=b.tts_speed,
                                  temperature=b.tts_temperature)
@@ -151,9 +161,9 @@ def build_tts_audio(
                 )
                 wav.unlink(missing_ok=True)
 
-    # ── Post-process clips: remove breathiness ───────────────────────────────
-    # highpass=f=130  → cuts low-frequency breath/rumble
-    # dynaudnorm      → evens out loud/quiet moments so voice sounds consistent
+    # ── Post-process clips ────────────────────────────────────────────────────
+    # highpass=f=120 → cuts breath/mendesah low-freq rumble
+    # equalizer=f=2500 → gentle presence boost for consonant clarity
     if not pregenerated_dir:
         for i, _ in speak_beats:
             p = tmp_dir / f"beat_{i:02d}.mp3"
@@ -162,7 +172,26 @@ def build_tts_audio(
             tmp_p = tmp_dir / f"beat_{i:02d}_c.mp3"
             subprocess.run(
                 [ffmpeg, "-y", "-i", str(p),
-                 "-af", "afade=t=in:st=0:d=0.06,highpass=f=130,dynaudnorm=g=11:p=0.92:m=80",
+                 "-af", "highpass=f=120,equalizer=f=2500:width_type=o:width=2:g=2",
+                 "-c:a", "libmp3lame", "-b:a", "128k", str(tmp_p)],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            )
+            if tmp_p.exists():
+                tmp_p.replace(p)
+
+    # pitch shift only if tts_pitch != 1.0
+    if not pregenerated_dir and abs(tts_pitch - 1.0) > 0.001:
+        sr = int(44100 * tts_pitch)
+        tempo = 1.0 / tts_pitch
+        pitch_filter = f"asetrate={sr},aresample=44100,atempo={tempo:.6f}"
+        for i, _ in speak_beats:
+            p = tmp_dir / f"beat_{i:02d}.mp3"
+            if not p.exists():
+                continue
+            tmp_p = tmp_dir / f"beat_{i:02d}_c.mp3"
+            subprocess.run(
+                [ffmpeg, "-y", "-i", str(p),
+                 "-af", pitch_filter,
                  "-c:a", "libmp3lame", "-b:a", "128k", str(tmp_p)],
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             )
@@ -189,16 +218,18 @@ def build_tts_audio(
         }
         return durations
 
-    # ── Fade-out each clip ────────────────────────────────────────────────────
+    # ── Fade-out each clip (only if it overflows into the next beat) ─────────
     for idx, (i, beat) in enumerate(clip_list):
         p = tmp_dir / f"beat_{i:02d}.mp3"
         next_time = clip_list[idx + 1][1].time if idx + 1 < len(clip_list) else duration
-        max_dur = next_time - beat.time - 0.20
+        max_dur = next_time - beat.time - 0.05
         if max_dur <= 0:
             continue
         clip_dur = _audio_duration(ffmpeg, p)
-        trim_dur = min(clip_dur, max_dur)
-        fade_dur = min(0.18, trim_dur * 0.15)
+        if clip_dur <= max_dur:
+            continue  # clip fits naturally — don't touch it
+        trim_dur = max_dur
+        fade_dur = min(0.12, trim_dur * 0.08)
         tmp_p = tmp_dir / f"beat_{i:02d}_t.mp3"
         subprocess.run(
             [ffmpeg, "-y", "-i", str(p),

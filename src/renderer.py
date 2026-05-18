@@ -20,6 +20,7 @@ from src.utils import (
     lerp,
     ease_out_cubic,
     ease_out_back,
+    strip_emoji,
 )
 from src.sprite import organic, make_sprite_schedule, load_frames
 
@@ -68,6 +69,38 @@ def _measure_rich_line(
     return width, height
 
 
+def _wrap_rich_spans(
+    draw: ImageDraw.ImageDraw,
+    spans: list[RichTextSpan],
+    font,
+    max_w: int,
+) -> list[list[RichTextSpan]]:
+    """Break spans into rows that each fit within max_w, splitting at word boundaries."""
+    from src.models import RichTextSpan as RS
+    rows: list[list[RS]] = []
+    current_row: list[RS] = []
+    current_w = 0
+
+    for span in spans:
+        words = span.text.split(" ")
+        for wi, word in enumerate(words):
+            piece = word if wi == len(words) - 1 else word + " "
+            w, _ = measure(draw, piece, font)
+            if current_w + w > max_w and current_row:
+                rows.append(current_row)
+                current_row = []
+                current_w = 0
+                piece = piece.lstrip()  # trim leading space on new row
+                w, _ = measure(draw, piece, font)
+            if piece:
+                current_row.append(RS(text=piece, color=span.color))
+                current_w += w
+
+    if current_row:
+        rows.append(current_row)
+    return rows or [[]]
+
+
 def _draw_rich_line(
     draw: ImageDraw.ImageDraw,
     spans: list[RichTextSpan],
@@ -93,10 +126,12 @@ def draw_text_overlay(
     alpha: int,
     w_scale: float,
     rich_text: list[RichTextSpan] | None = None,
+    rich_text_sub: list[RichTextSpan] | None = None,
 ) -> None:
     """Render text directly on canvas — no card/box, drop shadow only."""
-    rich_text = rich_text or []
-    if not text and not sub and not rich_text:
+    rich_text     = rich_text     or []
+    rich_text_sub = rich_text_sub or []
+    if not text and not sub and not rich_text and not rich_text_sub:
         return
 
     main_px, sub_px = TEXT_SIZES.get(size_key, TEXT_SIZES["normal"])
@@ -110,22 +145,25 @@ def draw_text_overlay(
 
     proxy = ImageDraw.Draw(Image.new("RGBA", (1, 1)))
     main_lines = [] if rich_text else (wrap_text(proxy, text, main_font, max_w) if text else [])
-    sub_lines  = wrap_text(proxy, sub,  sub_font,  max_w) if sub  else []
+    sub_clean  = strip_emoji(sub) if sub else ""
+    sub_lines  = [] if rich_text_sub else (wrap_text(proxy, sub_clean, sub_font, max_w) if sub_clean else [])
 
-    if rich_text:
-        rich_w, _ = _measure_rich_line(proxy, rich_text, main_font)
-        if rich_w > max_w:
-            scale = max(0.68, max_w / rich_w)
-            main_font = find_font(max(1, int(main_px * w_scale * scale)), bold=True)
+    rich_rows     = _wrap_rich_spans(proxy, rich_text,     main_font, max_w) if rich_text     else []
+    rich_sub_rows = _wrap_rich_spans(proxy, rich_text_sub, sub_font,  max_w) if rich_text_sub else []
 
     # Measure total block height so we can vertically center in the text zone
     total_h = 0
-    if rich_text:
-        total_h += _measure_rich_line(proxy, rich_text, main_font)[1] + gap_ln
+    if rich_rows:
+        for row in rich_rows:
+            total_h += _measure_rich_line(proxy, row, main_font)[1] + gap_ln
     else:
         for line in main_lines:
             total_h += measure(proxy, line, main_font)[1] + gap_ln
-    if sub_lines:
+    if rich_sub_rows:
+        total_h += gap_blk
+        for row in rich_sub_rows:
+            total_h += _measure_rich_line(proxy, row, sub_font)[1] + gap_ln
+    elif sub_lines:
         total_h += gap_blk
         for line in sub_lines:
             total_h += measure(proxy, line, sub_font)[1] + gap_ln
@@ -152,11 +190,12 @@ def draw_text_overlay(
         nonlocal_y[0] += render_line_at(draw, line, font, color, nonlocal_y[0], canvas.width, gap_ln, alpha)
 
     # Instead of the closure trick, just draw inline:
-    if rich_text:
-        w, h = _measure_rich_line(draw, rich_text, main_font)
-        x = (canvas.width - w) // 2
-        _draw_rich_line(draw, rich_text, main_font, x, y, alpha)
-        y += h + gap_ln
+    if rich_rows:
+        for row in rich_rows:
+            w, h = _measure_rich_line(draw, row, main_font)
+            x = (canvas.width - w) // 2
+            _draw_rich_line(draw, row, main_font, x, y, alpha)
+            y += h + gap_ln
     else:
         for line in main_lines:
             w, h = measure(draw, line, main_font)
@@ -165,7 +204,14 @@ def draw_text_overlay(
             draw.text((x, y), line, font=main_font, fill=(42, 42, 42, alpha))
             y += h + gap_ln
 
-    if sub_lines:
+    if rich_sub_rows:
+        y += gap_blk
+        for row in rich_sub_rows:
+            w, h = _measure_rich_line(draw, row, sub_font)
+            x = (canvas.width - w) // 2
+            _draw_rich_line(draw, row, sub_font, x, y, alpha)
+            y += h + gap_ln
+    elif sub_lines:
         y += gap_blk
         for line in sub_lines:
             w, h = measure(draw, line, sub_font)
@@ -187,10 +233,17 @@ def render_video_frames(config: RenderConfig) -> list[Image.Image]:
         name: load_frames(name) for name in anim_names
     }
 
-    # Sort and ensure a beat at t=0
+    # Sort and ensure a beat at t=0 — use first beat's pos/scale so cat
+    # doesn't jump position when the first real beat starts.
     beats = sorted(config.beats, key=lambda b: b.time)
     if not beats or beats[0].time > 0:
-        beats.insert(0, StoryBeat(time=0, text="", animation=config.default_animation))
+        first = beats[0] if beats else None
+        beats.insert(0, StoryBeat(
+            time=0, text="",
+            animation=config.default_animation,
+            pos=first.pos if first else "center",
+            scale=first.scale if first else 1.0,
+        ))
 
     # Pre-compute irregular sprite schedule per animation
     sprite_schedules: dict[str, list[int]] = {
@@ -293,7 +346,7 @@ def render_video_frames(config: RenderConfig) -> list[Image.Image]:
 
         # Text — fades in on beat entry
         text_alpha = min(255, int(255 * age / FADE_IN)) if age < FADE_IN else 255
-        draw_text_overlay(canvas, beat.text, beat.sub, beat.text_size, text_alpha, w_scale, beat.rich_text)
+        draw_text_overlay(canvas, beat.text, beat.sub, beat.text_size, text_alpha, w_scale, beat.rich_text, beat.rich_text_sub)
 
         # Resize so the cat *body* (excluding padding) renders at 62% of
         # canvas width × char_scale.  The pre-upscaled sprite is padded_size×4,
@@ -314,6 +367,8 @@ def render_video_frames(config: RenderConfig) -> list[Image.Image]:
         # Composite only the visible portion so we never shift the cat's anchor.
         sx = int(config.width  * char_cx - sprite.width  // 2)
         sy = int(config.height * char_cy - sprite.height // 2 + bob_px)
+        # Clamp so the sprite never overlaps the subtitle text zone (top ~38% of canvas)
+        sy = max(int(config.height * 0.38), sy)
 
         src_x0 = max(0, -sx);  src_x1 = min(sprite.width,  config.width  - sx)
         src_y0 = max(0, -sy);  src_y1 = min(sprite.height, config.height - sy)

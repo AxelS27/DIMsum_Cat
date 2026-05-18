@@ -1,0 +1,6 @@
+{
+  "panels": [
+    ["normal_talk", "excited_talk", "whisper_secret", "wink", "blow_kiss", "heart_eyes"],
+    ["shy_blush", "finger_heart", "smirk", "holding_phone", "waiting_reply", "got_a_text"]
+  ]
+}

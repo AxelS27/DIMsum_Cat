@@ -1,9 +1,18 @@
-# Output files inside story folders
+# Output files inside story folders (flat and nested category structure)
 content/*/video.mp4
 content/*/video.gif
 content/*/frames/
 content/*/video.tmp.mp4
+content/*/beats/
+content/*/*/video.mp4
+content/*/*/video.gif
+content/*/*/frames/
+content/*/*/video.tmp.mp4
+content/*/*/beats/
 *.wav
+
+# ML model weights
+assets/sprites/dimsum_cat/.esrgan_weights/
 
 # Reference audio (user-specific, not committed)
 audiotest*.mp3

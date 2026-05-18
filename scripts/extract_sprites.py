@@ -81,6 +81,11 @@ ANIMATIONS: dict[str, list[tuple[str, list[str]]]] = {
         ("R", ["happy_bounce", "listening_closely", "tiny_stretch_sit",
                "blow_air_hmph", "peek_from_box", "mini_twirl"]),
     ],
+    # bow.png — apology bowing animations (left page only)
+    "bow": [
+        ("L", ["bow_nod", "bow_polite", "bow_medium",
+               "bow_formal", "bow_deep", "bow_prostrate"]),
+    ],
 }
 
 FRAME_NAMES = ["frame_a", "frame_b", "frame_c", "frame_d"]
